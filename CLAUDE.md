@@ -1,6 +1,6 @@
 # Energy
 
-Household gas and electricity use, compared year on year. A PWA at https://energy.app.haddow.me (once deployed). Half-hourly smart meter readings come hourly from Bright (Hildebrand Glow's Glowmarkt API); months before the meter data come from the old Google Sheet ("Energy tracking", filled in from the Loop app). SvelteKit 3 (Svelte 5) on Cloudflare Workers, D1 via Drizzle, the same stack and setup as `~/code/budget` (copy patterns from there). Energy is integer watt hours in `reading`, kWh in `month_history`.
+Household gas and electricity use, compared year on year. A PWA at https://energy.app.haddow.me. Half-hourly smart meter readings come hourly from Bright (Hildebrand Glow's Glowmarkt API); months before the meter data come from the old Google Sheet ("Energy tracking", filled in from the Loop app). SvelteKit 3 (Svelte 5) on Cloudflare Workers, D1 via Drizzle, the same stack and setup as `~/code/budget` (copy patterns from there). Energy is integer watt hours in `reading`, kWh in `month_history`.
 
 ## Where things are
 
@@ -25,7 +25,7 @@ Same as budget: `npm test`, `npm run test:e2e`, `npm run check`, `npm run lint`,
   2. Straight away, run the `bug-hunter` and `simplifier` agents in parallel on the branch (repo path, base `main`). Apply real findings; skip any you disagree with and say why. Docs-only PRs skip this step.
   3. Push the fixes, then `scripts/pr-wait.sh` (with the PAT) for the Checks run (lint, types, unit, e2e).
   4. When green, send Jon the PR link, one line per finding (applied or skipped) and a screenshot if the UI changed (open it with Read).
-  5. When Jon approves, merge (`gh pr merge --squash`) and deploy without asking again: `npm run deploy` from an up-to-date `main` with `CLOUDFLARE_API_TOKEN='op://Claude/Cloudflare/credential' op-claude run --`, then `scripts/wait-deploy.sh`. (Once Cloudflare Workers Builds is connected, merging deploys by itself.)
+  5. When Jon approves, merge (`gh pr merge --squash`); Cloudflare Workers Builds deploys `main` by itself, so then just `scripts/wait-deploy.sh`.
 - Schema change: edit `schema.ts`, `npm run db:generate`, `npm run db:migrate:local`. The deploy applies migrations before the new code. Before merging, note a restore point (`wrangler d1 time-travel info energy`).
 - Keep docs current; record product or architecture choices (including ideas turned down) in `docs/decisions.md`.
 
