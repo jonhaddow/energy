@@ -6,9 +6,8 @@
 	--card: light-dark(#fffdf8, #1c1a18);
 	--ink: light-dark(#1c1917, #f3efe7);
 	--accent: light-dark(#e07a10, #f5a03c);
-	/* Text on an --accent or --ink background (primary buttons, chosen tabs). */
+	/* Text on an --accent background (primary buttons, chosen tabs). */
 	--on-accent: light-dark(#ffffff, #1a1206);
-	--on-ink: light-dark(#ffffff, #1c1917);
 	--muted: light-dark(#6f6a62, #a39d93);
 	--line: light-dark(#e6e0d4, #2d2a26);
 	--field: light-dark(#cfc7b8, #46413b);
@@ -217,7 +216,8 @@ p {
 	justify-content: center;
 	gap: 6px;
 	min-height: 40px;
-	border-radius: 4px;
+	/* Inside the track's padding. */
+	border-radius: calc(var(--radius) - 3px);
 	font-weight: 600;
 	font-size: 15px;
 	color: var(--muted);
