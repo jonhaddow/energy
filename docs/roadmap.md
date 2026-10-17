@@ -13,7 +13,7 @@ The aim: not just what we used, but whether it's more or less than it should be,
 ## Phase 1: the basics with meter data
 
 - **Bright sync on**: half-hourly readings hourly, history backfilled.
-- **Two pages, Current and Trends**: Trends is today's page (months, year on year). Current, once readings arrive:
+- **Two pages, Now and Trends**: Trends is today's page (months, year on year). Now, once readings arrive (hidden until then):
   - today so far, hour by hour, against a typical day for the time of year;
   - the last 30 days as daily bars, unusual days marked;
   - this week against a typical week, kWh and £.
@@ -22,7 +22,7 @@ The aim: not just what we used, but whether it's more or less than it should be,
 
 - **The fixed part**: what the standing charges cost a year, before using anything.
 - **Price changes on the chart**: a marker where new prices start.
-- **Always-on use** (on Current): the overnight baseline (fridge, router, standby) as kWh and £ a year, and when it changes.
+- **Always-on use** (on Now): the overnight baseline (fridge, router, standby) as kWh and £ a year, and when it changes.
 - **Weather-adjusted gas**: local temperatures (Open-Meteo) so a cold winter doesn't look like worse heating; use per degree day, year on year.
 - **Bill forecast**: where this month is heading, and a check against Ecotricity's bill.
 
