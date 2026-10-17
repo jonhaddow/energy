@@ -19,4 +19,23 @@ Same as budget: `npm test`, `npm run test:e2e`, `npm run check`, `npm run lint`,
 
 ## Workflow
 
-Same as budget's CLAUDE.md (PRs, bug-hunter and simplifier, `scripts/pr-wait.sh`, merge when Jon says), and its gotchas apply (Workers CPU limit, D1 100 bound values, SvelteKit 3 imports).
+- Work in a worktree (`scripts/worktree.sh <branch>`), never in `~/code/energy` itself.
+- `main` is what's live, so never push to it directly. Every change goes through a PR:
+  1. Branch, commit, push, `gh pr create` (gh needs the PAT: `GH_TOKEN='op://Claude/GitHub Personal Access Token/token' op-claude run -- gh ...`).
+  2. Straight away, run the `bug-hunter` and `simplifier` agents in parallel on the branch (repo path, base `main`). Apply real findings; skip any you disagree with and say why. Docs-only PRs skip this step.
+  3. Push the fixes, then `scripts/pr-wait.sh` (with the PAT) for the Checks run (lint, types, unit, e2e).
+  4. When green, send Jon the PR link, one line per finding (applied or skipped) and a screenshot if the UI changed (open it with Read).
+  5. When Jon approves, merge (`gh pr merge --squash`) and deploy without asking again: `npm run deploy` from an up-to-date `main` with `CLOUDFLARE_API_TOKEN='op://Claude/Cloudflare/credential' op-claude run --`, then `scripts/wait-deploy.sh`. (Once Cloudflare Workers Builds is connected, merging deploys by itself.)
+- Schema change: edit `schema.ts`, `npm run db:generate`, `npm run db:migrate:local`. The deploy applies migrations before the new code. Before merging, note a restore point (`wrangler d1 time-travel info energy`).
+- Keep docs current; record product or architecture choices (including ideas turned down) in `docs/decisions.md`.
+
+## Review focus
+
+A small household app: simple beats defensive. Cutting code is a good outcome, and bugs only matter if someone's likely to hit them. Watch for: UK time (BST, half hours to days), partial months, Workers CPU and D1 limits (100 bound values per query), Bright API limits (10 days per half-hourly request), sign-in checks on new routes.
+
+## Gotchas
+
+budget's CLAUDE.md gotchas apply here too (SvelteKit 3 imports, Workers CPU limit, unbound `fetch`, D1 limits, `db.batch` tuples, strict CSP). Also:
+
+- `scripts/shot.sh` and the e2e tests use `.wrangler/e2e`, a fresh database with the fixtures in `e2e/fixtures.sql`.
+- The sheet history (`private/`) is household data: keep it out of git.
