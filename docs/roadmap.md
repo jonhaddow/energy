@@ -6,7 +6,7 @@ The aim: not just what we used, but whether it's more or less than it should be,
 
 - Year-on-year electricity and gas, month by month (chart, table, this year so far against the same months last year).
 - The old sheet's months (2025–26) imported; Bright sync built, waiting for the Bright login.
-- Settings: Ecotricity unit rates and standing charges, dated (not used in the views yet).
+- Settings: unit rates and standing charges, dated (not used in the views yet). Filled in from the sheet (2025 onwards).
 
 ## Phase 1: the basics with meter data
 

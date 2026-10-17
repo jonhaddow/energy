@@ -23,7 +23,7 @@
 
 	<section class="card">
 		<h2>Prices</h2>
-		<p class="muted small">Ecotricity’s, with VAT, as on the bill.</p>
+		<p class="muted small">With VAT, as on the bill.</p>
 
 		{#each fuels as f (f.value)}
 			{@const rows = data.tariffs.filter((t) => t.fuel === f.value)}
