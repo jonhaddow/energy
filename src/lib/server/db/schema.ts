@@ -72,3 +72,20 @@ export const backfill = sqliteTable('backfill', {
 	fuel: text('fuel', { enum: FUELS }).primaryKey(),
 	doneAt: text('done_at').notNull()
 });
+
+/**
+ * Ecotricity's prices for a fuel from a date until the next tariff starts.
+ * Pence with VAT, as on the bill: rates have fractions of a penny.
+ */
+export const tariff = sqliteTable(
+	'tariff',
+	{
+		fuel: text('fuel', { enum: FUELS }).notNull(),
+		/** YYYY-MM-DD, the first day the prices apply. */
+		from: text('from').notNull(),
+		unitPence: real('unit_pence').notNull(),
+		/** Per day. */
+		standingPence: real('standing_pence').notNull()
+	},
+	(t) => [primaryKey({ columns: [t.fuel, t.from] })]
+);

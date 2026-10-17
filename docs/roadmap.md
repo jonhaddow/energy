@@ -6,11 +6,12 @@ The aim: not just what we used, but whether it's more or less than it should be,
 
 - Year-on-year electricity and gas, month by month (chart, table, this year so far against the same months last year).
 - The old sheet's months (2025–26) imported; Bright sync built, waiting for the Bright login.
+- Settings: Ecotricity unit rates and standing charges, dated (not used in the views yet).
 
 ## Phase 1: the basics with meter data
 
 - **Bright sync on**: half-hourly readings hourly, history backfilled.
-- **Real costs**: Ecotricity unit rates and standing charges, with dates (tariffs change), so every view shows £ as well as kWh.
+- **Real costs**: every view shows £ as well as kWh, from the prices in Settings.
 - **Today and this week**: use so far against a typical day, hour by hour.
 
 ## Phase 2: the big insights
