@@ -5,3 +5,4 @@
 - **Sheet history kept as monthly totals** (`month_history`), and readings replace a month only once they cover it fully, so a month the meter only partly covers doesn't look like a drop.
 - **Backfill 2 windows per hourly run** (18 days per fuel): keeps each run within Workers' free-plan CPU and subrequest limits. About a year of history takes a day.
 - **The sheet's "Year 1" and "Year 2" were imported as 2025 and 2026** (Year 2 has data to September, last edited October 2026). Check against the meter data once it backfills; fix by re-importing.
+- **Not doing (October 2026)**: notes for life events on the charts (new boiler, insulation), monthly kWh or £ targets, and grid carbon intensity / greener timing. Jon wasn't interested.

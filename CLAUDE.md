@@ -27,7 +27,7 @@ Same as budget: `npm test`, `npm run test:e2e`, `npm run check`, `npm run lint`,
   4. When green, send Jon the PR link, one line per finding (applied or skipped) and a screenshot if the UI changed (open it with Read).
   5. When Jon approves, merge (`gh pr merge --squash`); Cloudflare Workers Builds deploys `main` by itself, so then just `scripts/wait-deploy.sh`.
 - Schema change: edit `schema.ts`, `npm run db:generate`, `npm run db:migrate:local`. The deploy applies migrations before the new code. Before merging, note a restore point (`wrangler d1 time-travel info energy`).
-- Keep docs current; record product or architecture choices (including ideas turned down) in `docs/decisions.md`.
+- Planned features are in `docs/roadmap.md`; keep it current. Keep docs current; record product or architecture choices (including ideas turned down) in `docs/decisions.md`.
 
 ## Review focus
 
