@@ -4,7 +4,7 @@ import { open } from './helpers.ts';
 test('adds and removes prices', async ({ page }) => {
 	await open(page, '/settings');
 	await page.getByRole('radiogroup', { name: 'Fuel' }).getByText('Gas').click();
-	await page.getByLabel('From').fill('2026-10-01');
+	await page.getByLabel('From', { exact: true }).fill('2026-10-01');
 	await page.getByLabel('Unit rate').fill('6.12');
 	await page.getByLabel('Standing charge').fill('31.4');
 	await page.getByRole('button', { name: 'Save' }).click();
