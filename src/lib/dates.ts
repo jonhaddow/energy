@@ -10,6 +10,7 @@ const dayLabel = new Intl.DateTimeFormat('en-GB', {
 	month: 'short',
 	timeZone: 'UTC'
 });
+const dateLabel = new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeZone: 'UTC' });
 
 /** The UK date (YYYY-MM-DD) of a unix time in seconds. */
 export const dayOf = (unix: number) => ukDay.format(unix * 1000);
@@ -25,3 +26,6 @@ export const formatDay = (day: string) =>
 
 export const daysInMonth = (month: string) =>
 	new Date(Date.UTC(Number(month.slice(0, 4)), Number(month.slice(5, 7)), 0)).getUTCDate();
+
+/** "16 Oct 2026" for 2026-10-16. */
+export const formatDate = (day: string) => dateLabel.format(new Date(`${day}T12:00:00Z`));

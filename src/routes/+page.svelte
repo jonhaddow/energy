@@ -93,9 +93,7 @@
 		{:else if !data.sync.status}
 			<p>Not syncing with Bright yet.</p>
 		{/if}
-		<form method="POST" action="/logout">
-			<button class="link">Sign out</button>
-		</form>
+		<a class="link" href="/settings">Settings</a>
 	</footer>
 </main>
 
@@ -163,11 +161,7 @@
 		text-align: center;
 	}
 	.link {
-		background: none;
-		border: 0;
 		padding: 8px;
 		color: var(--muted);
-		text-decoration: underline;
-		cursor: pointer;
 	}
 </style>

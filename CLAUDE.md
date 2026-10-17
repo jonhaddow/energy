@@ -9,7 +9,7 @@ Household gas and electricity use, compared year on year. A PWA at https://energ
 - `src/lib/usage.ts`: months (readings win when they cover the whole month, else sheet history), grouping by year, year-on-year comparison
 - `src/lib/server/usage.ts`: the SQL behind it
 - `src/lib/components/YearChart.svelte`: month-by-month lines, one per year
-- `src/routes/+page.svelte`: the only page (`?fuel=gas`); `/sync`: called by the cron (`worker/entry.js`) with `SYNC_SECRET`
+- `src/routes/+page.svelte`: the main page (`?fuel=gas`); `/settings`: prices (`src/lib/server/tariffs.ts`) and sign out; `/sync`: called by the cron (`worker/entry.js`) with `SYNC_SECRET`
 - `scripts/history.ts`: sheet CSV (`private/`, not in git) to SQL for `month_history`
 - Schema: `src/lib/server/db/schema.ts`
 
