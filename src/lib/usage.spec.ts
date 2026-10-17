@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { byYear, combined, compare, monthCost, monthlyUse } from './usage.ts';
+import { addMonths, byYear, combined, compare, monthCost, monthlyUse } from './usage.ts';
 
 describe('monthlyUse', () => {
 	const history = [
@@ -40,40 +40,63 @@ describe('monthlyUse', () => {
 	});
 });
 
-describe('compare', () => {
-	const use = monthlyUse(
-		[],
-		[
-			{ month: '2025-01', kwh: 200 },
-			{ month: '2025-02', kwh: 100 },
-			{ month: '2025-03', kwh: 100 },
-			{ month: '2026-01', kwh: 150 },
-			{ month: '2026-02', kwh: 90 }
-		],
-		'2026-03',
-		[{ from: '2025-01-01', unitPence: 10, standingPence: 0 }]
-	);
-	const [y2026, y2025] = byYear(use);
-
+describe('byYear', () => {
 	it('groups by year, newest first', () => {
+		const use = monthlyUse(
+			[],
+			[
+				{ month: '2025-01', kwh: 200 },
+				{ month: '2026-02', kwh: 90 }
+			],
+			'2026-03',
+			[]
+		);
+		const [y2026, y2025] = byYear(use);
 		expect(y2026.year).toBe(2026);
-		expect(y2025.months.slice(0, 4).map((m) => m?.kwh ?? null)).toEqual([200, 100, 100, null]);
+		expect(y2025.months.slice(0, 2).map((m) => m?.kwh ?? null)).toEqual([200, null]);
 	});
+});
 
-	it('compares only the months both years have', () => {
-		expect(compare(y2026, y2025, 'kwh')).toEqual({
-			value: 240,
-			beforeValue: 300,
-			change: expect.closeTo(-0.2),
-			months: [0, 1],
+describe('compare', () => {
+	const prices = [{ from: '2024-01-01', unitPence: 10, standingPence: 0 }];
+	/** kWh for each month from `start`. */
+	const months = (start: string, kwh: number[]) =>
+		kwh.map((k, i) => ({ month: addMonths(start, i), kwh: k }));
+
+	it('takes the last 12 whole months, across the new year', () => {
+		const history = [
+			...months('2024-01', Array(12).fill(100)),
+			...months('2025-01', Array(12).fill(90))
+		];
+		// January 2026 is still going: 2025 against 2024.
+		const meter = [{ month: '2026-01', wh: 50_000, halfHours: 5 * 48 }];
+		expect(compare(monthlyUse(meter, history, '2026-01', prices), 'kwh')).toEqual({
+			from: '2025-01',
+			to: '2025-12',
+			value: 1080,
+			beforeValue: 1200,
+			change: expect.closeTo(-0.1),
 			why: null
 		});
 	});
 
+	it('rolls on a month at a time', () => {
+		const history = [...months('2024-01', Array(14).fill(100)), ...months('2025-03', [80, 80])];
+		// The 12 months to Apr 2025 only have a year before for Jan–Apr.
+		const result = compare(monthlyUse([], history, '2025-05', prices), 'kwh')!;
+		expect([result.from, result.to, result.value, result.beforeValue]).toEqual([
+			'2025-01',
+			'2025-04',
+			360,
+			400
+		]);
+	});
+
 	it('compares pounds', () => {
-		expect(compare(y2026, y2025, 'gbp')).toMatchObject({
-			value: expect.closeTo(24),
-			beforeValue: expect.closeTo(30)
+		const history = [...months('2024-01', [100]), ...months('2025-01', [80])];
+		expect(compare(monthlyUse([], history, '2025-03', prices), 'gbp')).toMatchObject({
+			value: expect.closeTo(8),
+			beforeValue: expect.closeTo(10)
 		});
 	});
 
@@ -82,20 +105,23 @@ describe('compare', () => {
 			{ from: '2025-01-01', unitPence: 10, standingPence: 0 },
 			{ from: '2026-01-01', unitPence: 20, standingPence: 0 }
 		];
-		const history = [
-			{ month: '2025-01', kwh: 100 },
-			{ month: '2026-01', kwh: 80 }
-		];
-		const [now, before] = byYear(monthlyUse([], history, '2026-03', prices));
+		const use = monthlyUse(
+			[],
+			[...months('2025-01', [100]), ...months('2026-01', [80])],
+			'2026-03',
+			prices
+		);
 		// £10 last year; 80 kWh would have been £8 (using less: −£2), but cost £16 (prices: +£8).
-		const why = compare(now, before, 'gbp')!.why!;
+		const why = compare(use, 'gbp')!.why!;
 		expect(why.use).toBeCloseTo(-2);
 		expect(why.prices).toBeCloseTo(8);
-		expect(compare(now, before, 'kwh')!.why).toBeNull();
+		expect(compare(use, 'kwh')!.why).toBeNull();
 	});
 
-	it('has nothing to compare without an earlier year', () => {
-		expect(compare(y2025, undefined, 'kwh')).toBeNull();
+	it('has nothing to compare without a year before', () => {
+		expect(
+			compare(monthlyUse([], months('2025-01', [100, 90]), '2025-03', prices), 'kwh')
+		).toBeNull();
 	});
 });
 

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import YearChart from '#lib/components/YearChart.svelte';
-	import { MONTHS, formatDay } from '#lib/dates.ts';
+	import { MONTHS, formatDay, formatMonths } from '#lib/dates.ts';
 	import { formatAmount, formatPercent } from '#lib/format.ts';
 	import { byYear, compare, valueOf } from '#lib/usage.ts';
 
@@ -8,7 +8,7 @@
 
 	const years = $derived(byYear(data.months));
 	const shown = $derived(years.slice(0, 3));
-	const vsLastYear = $derived(years.length > 1 ? compare(years[0], years[1], data.unit) : null);
+	const vsLastYear = $derived(compare(data.months, data.unit));
 	/** This month in the chart: the newest month with data. */
 	const latest = $derived(data.months.at(-1));
 	const selected = $derived(latest ? Number(latest.month.slice(5, 7)) - 1 : 0);
@@ -23,8 +23,6 @@
 				label: l.label,
 				amount: `${l.value < 0 ? '−' : '+'}${formatAmount(Math.abs(l.value), 'gbp')}`
 			}));
-	const span = (months: number[]) =>
-		months.length === 1 ? MONTHS[months[0]] : `${MONTHS[months[0]]}–${MONTHS[months.at(-1)!]}`;
 
 	const href = (fuel: string, unit: string) =>
 		'/?' + new URLSearchParams({ fuel, ...(unit === 'gbp' && { unit }) });
@@ -75,12 +73,12 @@
 		{#if vsLastYear}
 			{@const less = vsLastYear.change < 0}
 			<section class="card headline">
-				<p class="muted">{span(vsLastYear.months)} {years[0].year}</p>
+				<p class="muted">{formatMonths(vsLastYear.from, vsLastYear.to)}</p>
 				<p class="big">{formatAmount(vsLastYear.value, data.unit)}</p>
 				<p class={less ? 'good' : 'over'}>
 					{less ? '↓' : '↑'}
 					{formatPercent(vsLastYear.change)}
-					{less ? 'less' : 'more'} than {years[1].year}
+					{less ? 'less' : 'more'} than a year before
 					<span class="muted">({formatAmount(vsLastYear.beforeValue, data.unit)})</span>
 				</p>
 				{#if vsLastYear.why}

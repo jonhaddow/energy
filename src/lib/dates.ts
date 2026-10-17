@@ -24,6 +24,14 @@ export const MONTHS = Array.from({ length: 12 }, (_, i) =>
 export const formatDay = (day: string) =>
 	dayLabel.format(new Date(`${day}T12:00:00Z`)).replace(',', '');
 
+/** "Sep 2026", "Jan–Sep 2026" or "Oct 2025 – Sep 2026" for two YYYY-MMs. */
+export function formatMonths(from: string, to: string) {
+	const label = (m: string) => MONTHS[Number(m.slice(5, 7)) - 1];
+	if (from === to) return `${label(to)} ${to.slice(0, 4)}`;
+	if (from.slice(0, 4) === to.slice(0, 4)) return `${label(from)}–${label(to)} ${to.slice(0, 4)}`;
+	return `${label(from)} ${from.slice(0, 4)} – ${label(to)} ${to.slice(0, 4)}`;
+}
+
 export const daysInMonth = (month: string) =>
 	new Date(Date.UTC(Number(month.slice(0, 4)), Number(month.slice(5, 7)), 0)).getUTCDate();
 
