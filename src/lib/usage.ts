@@ -5,8 +5,6 @@ export type MonthUse = {
 	/** YYYY-MM */
 	month: string;
 	kwh: number;
-	/** Days it covers: the whole month, or the days with readings. */
-	days: number;
 	/** What it cost, standing charges included; null when a day has no price. */
 	pence: number | null;
 	/** Not a whole month: the current one so far, or one the meter data only partly covers. */
@@ -31,7 +29,7 @@ export function monthCost(month: string, kwh: number, days: number, prices: Pric
 		if (!p) return null;
 		pence += (kwh / days) * p.unitPence + p.standingPence;
 	}
-	return days ? pence : null;
+	return pence;
 }
 
 /**
@@ -47,7 +45,7 @@ export function monthlyUse(
 ): MonthUse[] {
 	const months = new Map<string, MonthUse>();
 	const add = (month: string, kwh: number, days: number, partial: boolean) =>
-		months.set(month, { month, kwh, days, pence: monthCost(month, kwh, days, prices), partial });
+		months.set(month, { month, kwh, pence: monthCost(month, kwh, days, prices), partial });
 	for (const h of history) add(h.month, h.kwh, daysInMonth(h.month), false);
 	for (const m of meter) {
 		// Clock changes add or drop two half hours; allow a few more missing.
@@ -72,7 +70,6 @@ export function combined(a: MonthUse[], b: MonthUse[]): MonthUse[] {
 		return {
 			month: m.month,
 			kwh: m.kwh + o.kwh,
-			days: Math.min(m.days, o.days),
 			pence: m.pence === null || o.pence === null ? null : m.pence + o.pence,
 			partial: m.partial || o.partial
 		};
@@ -113,9 +110,10 @@ export function compare(year: Year, before: Year | undefined, unit: Unit) {
 	const months: number[] = [];
 	year.months.forEach((m, i) => {
 		const b = before.months[i];
+		if (!m || !b || m.partial || b.partial) return;
 		const v = valueOf(m, unit);
 		const bv = valueOf(b, unit);
-		if (v === null || bv === null || m!.partial || b!.partial) return;
+		if (v === null || bv === null) return;
 		value += v;
 		beforeValue += bv;
 		months.push(i);

@@ -10,8 +10,8 @@ describe('monthlyUse', () => {
 	it('prefers readings that cover the whole month', () => {
 		const meter = [{ month: '2025-09', wh: 310_500, halfHours: 30 * 48 }];
 		expect(monthlyUse(meter, history, '2026-10', [])).toEqual([
-			{ month: '2025-08', kwh: 250, days: 31, pence: null, partial: false },
-			{ month: '2025-09', kwh: 310.5, days: 30, pence: null, partial: false }
+			{ month: '2025-08', kwh: 250, pence: null, partial: false },
+			{ month: '2025-09', kwh: 310.5, pence: null, partial: false }
 		]);
 	});
 
@@ -20,7 +20,6 @@ describe('monthlyUse', () => {
 		expect(monthlyUse(meter, history, '2026-10', [])[1]).toEqual({
 			month: '2025-09',
 			kwh: 300,
-			days: 30,
 			pence: null,
 			partial: false
 		});
@@ -105,7 +104,6 @@ describe('combined', () => {
 	const month = (m: string, kwh: number, pence: number | null, partial = false) => ({
 		month: m,
 		kwh,
-		days: 31,
 		pence,
 		partial
 	});

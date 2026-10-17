@@ -29,12 +29,13 @@
 		};
 		year.months.forEach((m, i) => {
 			const v = valueOf(m, unit);
-			if (v === null) return end();
+			if (!m || v === null) return end();
 			const point = `${x(i)},${y(v)}`;
-			if (!m!.partial) return run.push(point);
-			const before = valueOf(year.months[i - 1], unit);
-			if (before !== null && !year.months[i - 1]!.partial)
-				lines.push({ points: `${x(i - 1)},${y(before)} ${point}`, partial: true });
+			if (!m.partial) return run.push(point);
+			const before = year.months[i - 1];
+			const bv = valueOf(before, unit);
+			if (before && bv !== null && !before.partial)
+				lines.push({ points: `${x(i - 1)},${y(bv)} ${point}`, partial: true });
 			end();
 		});
 		end();
@@ -91,10 +92,10 @@
 			{/each}
 			{@const m = yr.months[month]}
 			{@const v = valueOf(m, unit)}
-			{#if v !== null}
+			{#if m && v !== null}
 				<circle
 					class="dot"
-					class:partial={m!.partial}
+					class:partial={m.partial}
 					cx={x(month)}
 					cy={y(v)}
 					r="4.5"
