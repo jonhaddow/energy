@@ -110,9 +110,11 @@
 		gap: 2px;
 	}
 	.big {
-		font-size: 34px;
-		font-weight: 700;
-		letter-spacing: -0.5px;
+		font-size: 52px;
+		font-weight: 600;
+		line-height: 1.05;
+		letter-spacing: -0.03em;
+		color: var(--accent);
 	}
 	.good {
 		color: var(--good);
@@ -138,7 +140,10 @@
 		text-align: left;
 	}
 	thead th {
-		font-size: 13px;
+		font-size: 11px;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.12em;
 		color: var(--muted);
 	}
 	tbody tr + tr > * {

@@ -8,7 +8,7 @@ export const themeOf = (value: string | null | undefined): Theme =>
 	value === 'light' || value === 'dark' ? value : 'system';
 
 /** The page background, which the phone uses for its status bar. */
-export const THEME_COLOURS = { light: '#f5f5f2', dark: '#0f1013' };
+export const THEME_COLOURS = { light: '#f4f1ea', dark: '#131211' };
 
 /** The <meta name="theme-color"> tags for a theme. */
 export function themeColourMeta(theme: Theme) {

@@ -93,7 +93,7 @@
 	}
 	h3 {
 		margin: 8px 0 0;
-		font-size: 15px;
+		font-size: 16px;
 	}
 	.small {
 		font-size: 13px;
@@ -131,9 +131,8 @@
 	.signout {
 		width: 100%;
 		min-height: 52px;
-		border: 0;
-		border-radius: 22px;
-		box-shadow: var(--shadow);
+		border: 1px solid var(--line);
+		border-radius: var(--radius);
 		background: var(--card);
 		color: var(--over);
 		font-weight: 600;

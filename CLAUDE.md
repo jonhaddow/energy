@@ -1,6 +1,6 @@
 # Energy
 
-Household gas and electricity use, compared year on year. A PWA at https://energy.app.haddow.me. Half-hourly smart meter readings come hourly from Bright (Hildebrand Glow's Glowmarkt API); months before the meter data come from the old Google Sheet ("Energy tracking", filled in from the Loop app). SvelteKit 3 (Svelte 5) on Cloudflare Workers, D1 via Drizzle, the same stack and setup as `~/code/budget` (copy patterns from there). Energy is integer watt hours in `reading`, kWh in `month_history`.
+Household gas and electricity use, compared year on year. A PWA at https://energy.app.haddow.me. Half-hourly smart meter readings come hourly from Bright (Hildebrand Glow's Glowmarkt API); months before the meter data come from the old Google Sheet ("Energy tracking", filled in from the Loop app). SvelteKit 3 (Svelte 5) on Cloudflare Workers, D1 via Drizzle, the same stack and setup as `~/code/budget` (copy code patterns from there, but not its look: energy has its own, see `app.css` and `docs/decisions.md`). Energy is integer watt hours in `reading`, kWh in `month_history`.
 
 ## Where things are
 

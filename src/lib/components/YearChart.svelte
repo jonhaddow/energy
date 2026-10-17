@@ -107,11 +107,10 @@
 <style>
 	figure {
 		margin: 0;
-		/* Fixed per year's place (this year, last year, the year before);
-		   the first three categorical slots of the dataviz reference palette. */
-		--y0: light-dark(#2a78d6, #3987e5);
-		--y1: light-dark(#eb6834, #d95926);
-		--y2: light-dark(#1baf7a, #199e70);
+		/* Fixed per year's place: this year in amber, earlier years fading back. */
+		--y0: var(--accent);
+		--y1: light-dark(#57534e, #b5afa5);
+		--y2: light-dark(#b8b0a3, #5e5850);
 	}
 	figcaption {
 		display: flex;
