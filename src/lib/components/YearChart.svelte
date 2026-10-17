@@ -1,16 +1,18 @@
 <script lang="ts">
 	import { MONTHS } from '#lib/dates.ts';
-	import { formatKwh } from '#lib/format.ts';
-	import type { Year } from '#lib/usage.ts';
+	import { formatAmount } from '#lib/format.ts';
+	import { valueOf, type Unit, type Year } from '#lib/usage.ts';
 
 	/** Newest year first; the first three are drawn. */
-	let { years, selected }: { years: Year[]; selected: number } = $props();
+	let { years, selected, unit }: { years: Year[]; selected: number; unit: Unit } = $props();
 
 	const W = 340;
 	const H = 150;
 	const PAD = 10;
 	const shown = $derived(years.slice(0, 3));
-	const max = $derived(Math.max(1, ...shown.flatMap((y) => y.months.map((m) => m?.kwh ?? 0))));
+	const max = $derived(
+		Math.max(1, ...shown.flatMap((y) => y.months.map((m) => valueOf(m, unit) ?? 0)))
+	);
 	const x = (i: number) => PAD + (i * (W - 2 * PAD)) / 11;
 	const y = (v: number) => H - (v / max) * (H - PAD);
 
@@ -26,12 +28,13 @@
 			run = [];
 		};
 		year.months.forEach((m, i) => {
-			const point = m && `${x(i)},${y(m.kwh)}`;
-			if (!m || !point) return end();
-			if (!m.partial) return run.push(point);
-			const before = year.months[i - 1];
-			if (before && !before.partial)
-				lines.push({ points: `${x(i - 1)},${y(before.kwh)} ${point}`, partial: true });
+			const v = valueOf(m, unit);
+			if (v === null) return end();
+			const point = `${x(i)},${y(v)}`;
+			if (!m!.partial) return run.push(point);
+			const before = valueOf(year.months[i - 1], unit);
+			if (before !== null && !year.months[i - 1]!.partial)
+				lines.push({ points: `${x(i - 1)},${y(before)} ${point}`, partial: true });
 			end();
 		});
 		end();
@@ -54,12 +57,12 @@
 		<ul class="legend">
 			{#each shown as yr, i (yr.year)}
 				{@const m = yr.months[month]}
+				{@const v = valueOf(m, unit)}
 				<li style="--c: var(--y{i})">
 					<span class="key" aria-hidden="true"></span>
 					{yr.year}
-					<strong>{m ? formatKwh(m.kwh) : '–'}</strong>{#if m?.partial}<span class="muted">
-							so far</span
-						>{/if}
+					<strong>{v === null ? '–' : formatAmount(v, unit)}</strong
+					>{#if v !== null && m?.partial}<span class="muted"> so far</span>{/if}
 				</li>
 			{/each}
 		</ul>
@@ -87,12 +90,13 @@
 				/>
 			{/each}
 			{@const m = yr.months[month]}
-			{#if m}
+			{@const v = valueOf(m, unit)}
+			{#if v !== null}
 				<circle
 					class="dot"
-					class:partial={m.partial}
+					class:partial={m!.partial}
 					cx={x(month)}
-					cy={y(m.kwh)}
+					cy={y(v)}
 					r="4.5"
 					style="--c: var(--y{i})"
 				/>

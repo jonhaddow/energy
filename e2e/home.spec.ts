@@ -14,3 +14,14 @@ test('switches to gas', async ({ page }) => {
 	await page.getByRole('link', { name: 'Gas' }).click();
 	await expect(page.getByText('10% more than 2025')).toBeVisible();
 });
+
+test('shows pounds, and both fuels together', async ({ page }) => {
+	await open(page, '/');
+	await page.getByRole('link', { name: '£' }).click();
+	await expect(page.getByText('£207')).toBeVisible();
+	await expect(page.getByText('16% less than 2025')).toBeVisible();
+	await page.getByRole('link', { name: 'Both' }).click();
+	await expect(page).toHaveURL(/fuel=both&unit=gbp/);
+	await expect(page.getByText('£218').first()).toBeVisible();
+	await expect(page.getByText('1% less than 2025')).toBeVisible();
+});

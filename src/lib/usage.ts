@@ -5,12 +5,34 @@ export type MonthUse = {
 	/** YYYY-MM */
 	month: string;
 	kwh: number;
+	/** Days it covers: the whole month, or the days with readings. */
+	days: number;
+	/** What it cost, standing charges included; null when a day has no price. */
+	pence: number | null;
 	/** Not a whole month: the current one so far, or one the meter data only partly covers. */
 	partial: boolean;
 };
 
 /** A month's meter total: watt hours and how many half hours it has readings for. */
 export type MeterMonth = { month: string; wh: number; halfHours: number };
+
+/** Prices from a date (YYYY-MM-DD) until the next one, in pence with VAT. */
+export type Price = { from: string; unitPence: number; standingPence: number };
+
+/**
+ * A month's cost: its use spread evenly over its days, each day at that day's
+ * unit rate, plus each day's standing charge. Null when a day has no price.
+ */
+export function monthCost(month: string, kwh: number, days: number, prices: Price[]) {
+	let pence = 0;
+	for (let d = 1; d <= days; d++) {
+		const day = `${month}-${String(d).padStart(2, '0')}`;
+		const p = prices.findLast((p) => p.from <= day);
+		if (!p) return null;
+		pence += (kwh / days) * p.unitPence + p.standingPence;
+	}
+	return days ? pence : null;
+}
 
 /**
  * Each month's use: the meter's readings when they cover the whole month,
@@ -19,18 +41,49 @@ export type MeterMonth = { month: string; wh: number; halfHours: number };
 export function monthlyUse(
 	meter: MeterMonth[],
 	history: { month: string; kwh: number }[],
-	thisMonth: string
+	thisMonth: string,
+	/** Oldest first. */
+	prices: Price[]
 ): MonthUse[] {
 	const months = new Map<string, MonthUse>();
-	for (const h of history) months.set(h.month, { month: h.month, kwh: h.kwh, partial: false });
+	const add = (month: string, kwh: number, days: number, partial: boolean) =>
+		months.set(month, { month, kwh, days, pence: monthCost(month, kwh, days, prices), partial });
+	for (const h of history) add(h.month, h.kwh, daysInMonth(h.month), false);
 	for (const m of meter) {
 		// Clock changes add or drop two half hours; allow a few more missing.
 		const whole = m.month < thisMonth && m.halfHours >= daysInMonth(m.month) * 48 - 6;
 		if (whole || !months.has(m.month))
-			months.set(m.month, { month: m.month, kwh: m.wh / 1000, partial: !whole });
+			add(
+				m.month,
+				m.wh / 1000,
+				whole ? daysInMonth(m.month) : Math.max(1, Math.round(m.halfHours / 48)),
+				!whole
+			);
 	}
 	return [...months.values()].sort((a, b) => a.month.localeCompare(b.month));
 }
+
+/** Two fuels added together, for the months both have. */
+export function combined(a: MonthUse[], b: MonthUse[]): MonthUse[] {
+	const other = new Map(b.map((m) => [m.month, m]));
+	return a.flatMap((m) => {
+		const o = other.get(m.month);
+		if (!o) return [];
+		return {
+			month: m.month,
+			kwh: m.kwh + o.kwh,
+			days: Math.min(m.days, o.days),
+			pence: m.pence === null || o.pence === null ? null : m.pence + o.pence,
+			partial: m.partial || o.partial
+		};
+	});
+}
+
+export type Unit = 'kwh' | 'gbp';
+
+/** A month in kWh or pounds; null when there's no data, or no price. */
+export const valueOf = (m: MonthUse | null, unit: Unit) =>
+	!m ? null : unit === 'kwh' ? m.kwh : m.pence === null ? null : m.pence / 100;
 
 export type Year = {
 	year: number;
@@ -53,18 +106,20 @@ export function byYear(months: MonthUse[]): Year[] {
  * A year against the one before, over the whole months both have
  * (so a year in progress compares like for like). Null when none overlap.
  */
-export function compare(year: Year, before: Year | undefined) {
+export function compare(year: Year, before: Year | undefined, unit: Unit) {
 	if (!before) return null;
-	let kwh = 0;
-	let beforeKwh = 0;
+	let value = 0;
+	let beforeValue = 0;
 	const months: number[] = [];
 	year.months.forEach((m, i) => {
 		const b = before.months[i];
-		if (!m || !b || m.partial || b.partial) return;
-		kwh += m.kwh;
-		beforeKwh += b.kwh;
+		const v = valueOf(m, unit);
+		const bv = valueOf(b, unit);
+		if (v === null || bv === null || m!.partial || b!.partial) return;
+		value += v;
+		beforeValue += bv;
 		months.push(i);
 	});
-	if (!months.length || !beforeKwh) return null;
-	return { kwh, beforeKwh, change: kwh / beforeKwh - 1, months };
+	if (!months.length || !beforeValue) return null;
+	return { value, beforeValue, change: value / beforeValue - 1, months };
 }

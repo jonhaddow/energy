@@ -1,23 +1,30 @@
 <script lang="ts">
 	import YearChart from '#lib/components/YearChart.svelte';
 	import { MONTHS, formatDay } from '#lib/dates.ts';
-	import { formatKwh, formatPercent } from '#lib/format.ts';
-	import { byYear, compare } from '#lib/usage.ts';
+	import { formatAmount, formatPercent } from '#lib/format.ts';
+	import { byYear, compare, valueOf } from '#lib/usage.ts';
 
 	let { data } = $props();
 
 	const years = $derived(byYear(data.months));
 	const shown = $derived(years.slice(0, 3));
-	const vsLastYear = $derived(years.length > 1 ? compare(years[0], years[1]) : null);
+	const vsLastYear = $derived(years.length > 1 ? compare(years[0], years[1], data.unit) : null);
 	/** This month in the chart: the newest month with data. */
 	const latest = $derived(data.months.at(-1));
 	const selected = $derived(latest ? Number(latest.month.slice(5, 7)) - 1 : 0);
 	const span = (months: number[]) =>
 		months.length === 1 ? MONTHS[months[0]] : `${MONTHS[months[0]]}–${MONTHS[months.at(-1)!]}`;
 
+	const href = (fuel: string, unit: string) =>
+		'/?' + new URLSearchParams({ fuel, ...(unit === 'gbp' && { unit }) });
 	const fuels = [
-		{ value: 'electricity', label: 'Electricity', href: '/' },
-		{ value: 'gas', label: 'Gas', href: '/?fuel=gas' }
+		{ value: 'electricity', label: 'Electricity' },
+		{ value: 'gas', label: 'Gas' },
+		{ value: 'both', label: 'Both' }
+	];
+	const units = [
+		{ value: 'kwh', label: 'kWh' },
+		{ value: 'gbp', label: '£' }
 	];
 </script>
 
@@ -28,11 +35,22 @@
 <main class="page">
 	<h1>Energy</h1>
 
-	<nav class="segments" aria-label="Fuel">
-		{#each fuels as f (f.value)}
-			<a href={f.href} aria-current={data.fuel === f.value ? 'page' : undefined}>{f.label}</a>
-		{/each}
-	</nav>
+	<div class="switches">
+		<nav class="segments" aria-label="Fuel">
+			{#each fuels as f (f.value)}
+				<a href={href(f.value, data.unit)} aria-current={data.fuel === f.value ? 'page' : undefined}
+					>{f.label}</a
+				>
+			{/each}
+		</nav>
+		<nav class="segments" aria-label="Units">
+			{#each units as u (u.value)}
+				<a href={href(data.fuel, u.value)} aria-current={data.unit === u.value ? 'page' : undefined}
+					>{u.label}</a
+				>
+			{/each}
+		</nav>
+	</div>
 
 	{#if !years.length}
 		<p class="card empty muted">
@@ -43,19 +61,19 @@
 			{@const less = vsLastYear.change < 0}
 			<section class="card headline">
 				<p class="muted">{span(vsLastYear.months)} {years[0].year}</p>
-				<p class="big">{formatKwh(vsLastYear.kwh)}</p>
+				<p class="big">{formatAmount(vsLastYear.value, data.unit)}</p>
 				<p class={less ? 'good' : 'over'}>
 					{less ? '↓' : '↑'}
 					{formatPercent(vsLastYear.change)}
 					{less ? 'less' : 'more'} than {years[1].year}
-					<span class="muted">({formatKwh(vsLastYear.beforeKwh)})</span>
+					<span class="muted">({formatAmount(vsLastYear.beforeValue, data.unit)})</span>
 				</p>
 			</section>
 		{/if}
 
 		<section class="card chart">
 			<h2>Month by month</h2>
-			<YearChart {years} {selected} />
+			<YearChart {years} {selected} unit={data.unit} />
 		</section>
 
 		<section class="card table">
@@ -72,15 +90,21 @@
 							<th scope="row">{label}</th>
 							{#each shown as yr (yr.year)}
 								{@const m = yr.months[i]}
+								{@const v = valueOf(m, data.unit)}
 								<td class:muted={m?.partial}>
-									{m ? Math.round(m.kwh).toLocaleString('en-GB') : ''}{m?.partial ? '*' : ''}
+									{v === null ? '' : Math.round(v).toLocaleString('en-GB')}{v !== null && m?.partial
+										? '*'
+										: ''}
 								</td>
 							{/each}
 						</tr>
 					{/each}
 				</tbody>
 			</table>
-			<p class="muted small">kWh. * so far, or not a full month of readings.</p>
+			<p class="muted small">
+				{data.unit === 'kwh' ? 'kWh' : '£, from the prices in Settings'}. * so far, or not a full
+				month of readings.
+			</p>
 		</section>
 	{/if}
 
@@ -100,6 +124,18 @@
 <style>
 	.card {
 		padding: 18px;
+	}
+	.switches {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		gap: 8px;
+	}
+	/* Tabs as wide as their words, so "Electricity" fits beside the units. */
+	.switches .segments {
+		grid-auto-columns: auto;
+	}
+	.switches .segments > * {
+		padding: 0 12px;
 	}
 	.empty {
 		text-align: center;
