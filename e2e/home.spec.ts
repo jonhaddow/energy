@@ -5,21 +5,21 @@ test('compares this year with last year', async ({ page }) => {
 	await open(page, '/');
 	await expect(page.getByText('Jan–Mar 2026')).toBeVisible();
 	await expect(page.getByText('640 kWh')).toBeVisible();
-	await expect(page.getByText('20% less than 2025')).toBeVisible();
+	await expect(page.getByText('20% less than a year before')).toBeVisible();
 	await expect(page.getByRole('row', { name: 'Feb 200 250' })).toBeVisible();
 });
 
 test('switches to gas', async ({ page }) => {
 	await open(page, '/');
 	await page.getByRole('link', { name: 'Gas' }).click();
-	await expect(page.getByText('10% more than 2025')).toBeVisible();
+	await expect(page.getByText('10% more than a year before')).toBeVisible();
 });
 
 test('shows pounds, and both fuels together', async ({ page }) => {
 	await open(page, '/');
 	await page.getByRole('link', { name: '£' }).click();
 	await expect(page.getByText('£207')).toBeVisible();
-	await expect(page.getByText('16% less than 2025')).toBeVisible();
+	await expect(page.getByText('16% less than a year before')).toBeVisible();
 	// The same prices both years, so all of it is from using less.
 	await expect(page.getByRole('listitem').filter({ hasText: 'Using less' })).toHaveText(
 		'Using less −£40'
@@ -28,5 +28,5 @@ test('shows pounds, and both fuels together', async ({ page }) => {
 	await page.getByRole('link', { name: 'Both' }).click();
 	await expect(page).toHaveURL(/fuel=both&unit=gbp/);
 	await expect(page.getByText('£218').first()).toBeVisible();
-	await expect(page.getByText('1% less than 2025')).toBeVisible();
+	await expect(page.getByText('1% less than a year before')).toBeVisible();
 });

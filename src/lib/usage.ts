@@ -119,34 +119,46 @@ export function byYear(months: MonthUse[]): Year[] {
 	return [...years.values()].sort((a, b) => b.year - a.year);
 }
 
+/** YYYY-MM, a number of months on (or back). */
+export const addMonths = (month: string, by: number) =>
+	new Date(Date.UTC(Number(month.slice(0, 4)), Number(month.slice(5, 7)) - 1 + by, 1))
+		.toISOString()
+		.slice(0, 7);
+
 /**
- * A year against the one before, over the whole months both have
- * (so a year in progress compares like for like). Null when none overlap.
+ * The last 12 whole months against the same months a year before, so the
+ * comparison always spans the seasons and never resets in January. Months
+ * without data (or, in £, a price) on both sides are left out. Null when none match.
  */
-export function compare(year: Year, before: Year | undefined, unit: Unit) {
-	if (!before) return null;
+export function compare(months: MonthUse[], unit: Unit) {
+	const byMonth = new Map(months.map((m) => [m.month, m]));
+	const latest = months.findLast((m) => !m.partial);
+	if (!latest) return null;
 	let value = 0;
 	let beforeValue = 0;
 	/** £ only: this year's use at last year's prices. */
 	let atLastYearPrices: number | null = 0;
-	const months: number[] = [];
-	year.months.forEach((m, i) => {
-		const b = before.months[i];
-		if (!m || !b || m.partial || b.partial) return;
+	const counted: string[] = [];
+	for (let back = 11; back >= 0; back--) {
+		const month = addMonths(latest.month, -back);
+		const m = byMonth.get(month);
+		const b = byMonth.get(addMonths(month, -12));
+		if (!m || !b || m.partial || b.partial) continue;
 		const v = valueOf(m, unit);
 		const bv = valueOf(b, unit);
-		if (v === null || bv === null) return;
+		if (v === null || bv === null) continue;
 		value += v;
 		beforeValue += bv;
 		atLastYearPrices = plus(atLastYearPrices, m.lastYearPricesPence);
-		months.push(i);
-	});
-	if (!months.length || !beforeValue) return null;
+		counted.push(month);
+	}
+	if (!counted.length || !beforeValue) return null;
 	return {
+		from: counted[0],
+		to: counted.at(-1)!,
 		value,
 		beforeValue,
 		change: value / beforeValue - 1,
-		months,
 		/** In pounds, how much of the change came from using more or less, and how much from prices. */
 		why:
 			unit === 'gbp' && atLastYearPrices !== null

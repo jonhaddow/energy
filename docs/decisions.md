@@ -13,3 +13,5 @@
 - **Both = electricity + gas for the months both fuels have**; partial if either is. kWh add up as well as £, so both units work.
 - **Laptop layout from 960px** (as budget): pages get `.page.wide` (1040px), and lay out in columns with grid areas. Home: headline and table on the left, the chart beside them (sticky). Settings: prices beside the form.
 - **Why the bill changed**: this year's use priced at last year's prices (each month at the same month a year before) splits the change: use = that minus last year's cost, prices = this year's cost minus that. Standing charges count as prices. Lines that round to £0 are left out.
+- **Headline is the last 12 whole months against the 12 before** (rolling), not this calendar year so far: always a full set of seasons, and no empty January. Months without a match a year before (or a price, in £) are left out, so early on it's the months both have. The chart and table stay calendar years (up to 3).
+- **Jul–Dec 2024 imported from the sheet's "Sheet5" tab** (readings; its prices, 22p/55p electricity and 5p/46p gas, are round figures, entered as prices from 1 Jul 2024).
