@@ -11,3 +11,4 @@
 - **No energy provider named in the app** (October 2026): the UI says nothing about Ecotricity, so it isn't tied to one supplier.
 - **Costs calculated from the prices**, not the sheet's typed-in costs (`month_history.cost_pence`, which assumed 30-day months): every month is priced the same way. A month's kWh is spread evenly over its days, each day at that day's prices, so a mid-month price change splits the month. A month with a day before the first price has no cost.
 - **Both = electricity + gas for the months both fuels have**; partial if either is. kWh add up as well as £, so both units work.
+- **Laptop layout from 960px** (as budget): pages get `.page.wide` (1040px), and lay out in columns with grid areas. Home: headline and table on the left, the chart beside them (sticky). Settings: prices beside the form.

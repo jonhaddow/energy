@@ -17,11 +17,13 @@
 	<title>Settings · Energy</title>
 </svelte:head>
 
-<main class="page">
-	<a class="back" href="/">‹ Back</a>
-	<h1>Settings</h1>
+<main class="page wide">
+	<header>
+		<a class="back" href="/">‹ Back</a>
+		<h1>Settings</h1>
+	</header>
 
-	<section class="card">
+	<section class="card prices">
 		<h2>Prices</h2>
 		<p class="muted small">With VAT, as on the bill.</p>
 
@@ -79,12 +81,42 @@
 		<button class="btn primary">Save</button>
 	</form>
 
-	<form method="POST" action="/logout">
+	<form class="out" method="POST" action="/logout">
 		<button class="signout">Sign out</button>
 	</form>
 </main>
 
 <style>
+	header {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+	}
+	/* Laptops: the prices and the form side by side. */
+	@media (min-width: 960px) {
+		main {
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+			grid-template-areas:
+				'top top'
+				'prices add'
+				'out add';
+			grid-template-rows: auto auto 1fr;
+			align-items: start;
+		}
+		header {
+			grid-area: top;
+		}
+		.prices {
+			grid-area: prices;
+		}
+		.add {
+			grid-area: add;
+		}
+		.out {
+			grid-area: out;
+		}
+	}
 	.card {
 		padding: 18px;
 		display: flex;

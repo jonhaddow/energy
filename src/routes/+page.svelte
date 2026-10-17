@@ -32,25 +32,29 @@
 	<title>Energy</title>
 </svelte:head>
 
-<main class="page">
-	<h1>Energy</h1>
+<main class="page wide">
+	<header>
+		<h1>Energy</h1>
 
-	<div class="switches">
-		<nav class="segments" aria-label="Fuel">
-			{#each fuels as f (f.value)}
-				<a href={href(f.value, data.unit)} aria-current={data.fuel === f.value ? 'page' : undefined}
-					>{f.label}</a
-				>
-			{/each}
-		</nav>
-		<nav class="segments" aria-label="Units">
-			{#each units as u (u.value)}
-				<a href={href(data.fuel, u.value)} aria-current={data.unit === u.value ? 'page' : undefined}
-					>{u.label}</a
-				>
-			{/each}
-		</nav>
-	</div>
+		<div class="switches">
+			<nav class="segments" aria-label="Fuel">
+				{#each fuels as f (f.value)}
+					<a
+						href={href(f.value, data.unit)}
+						aria-current={data.fuel === f.value ? 'page' : undefined}>{f.label}</a
+					>
+				{/each}
+			</nav>
+			<nav class="segments" aria-label="Units">
+				{#each units as u (u.value)}
+					<a
+						href={href(data.fuel, u.value)}
+						aria-current={data.unit === u.value ? 'page' : undefined}>{u.label}</a
+					>
+				{/each}
+			</nav>
+		</div>
+	</header>
 
 	{#if !years.length}
 		<p class="card empty muted">
@@ -124,6 +128,51 @@
 <style>
 	.card {
 		padding: 18px;
+	}
+	header {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+	}
+	/* Laptops: the headline and table down the left, the chart beside them. */
+	@media (min-width: 960px) {
+		main {
+			display: grid;
+			grid-template-columns: 380px minmax(0, 1fr);
+			grid-template-areas:
+				'top top'
+				'headline chart'
+				'table chart'
+				'foot foot';
+			grid-template-rows: auto auto 1fr auto;
+			align-items: start;
+		}
+		header {
+			grid-area: top;
+			flex-direction: row;
+			align-items: center;
+			justify-content: space-between;
+		}
+		.switches {
+			width: 440px;
+		}
+		.empty {
+			grid-column: 1 / -1;
+		}
+		.headline {
+			grid-area: headline;
+		}
+		.chart {
+			grid-area: chart;
+			position: sticky;
+			top: 24px;
+		}
+		.table {
+			grid-area: table;
+		}
+		footer {
+			grid-area: foot;
+		}
 	}
 	.switches {
 		display: grid;
