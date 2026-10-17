@@ -64,6 +64,15 @@ a {
 	gap: 20px;
 }
 
+/* Laptops: more width, for pages laid out in columns. */
+@media (min-width: 960px) {
+	.page.wide {
+		max-width: 1040px;
+		padding: 40px 32px 48px;
+		gap: 24px 32px;
+	}
+}
+
 /* A wordmark rather than a headline. */
 h1 {
 	margin: 0;
