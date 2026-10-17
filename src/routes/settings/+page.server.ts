@@ -1,5 +1,5 @@
 import { fail } from '@sveltejs/kit';
-import { FUELS, type Fuel } from '#lib/server/db/schema.ts';
+import type { Fuel } from '#lib/server/db/schema.ts';
 import { allTariffs, readTariffForm, removeTariff, saveTariff } from '#lib/server/tariffs.ts';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -15,8 +15,6 @@ export const actions: Actions = {
 	},
 	remove: async ({ request, locals }) => {
 		const form = await request.formData();
-		const fuel = form.get('fuel') as Fuel;
-		if (!FUELS.includes(fuel)) return fail(400, { error: 'Unknown fuel' });
-		await removeTariff(locals.db, fuel, String(form.get('from')));
+		await removeTariff(locals.db, form.get('fuel') as Fuel, String(form.get('from')));
 	}
 };

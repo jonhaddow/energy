@@ -9,7 +9,6 @@
 		{ value: 'gas', label: 'Gas' }
 	] as const;
 
-	let fuel = $state<'electricity' | 'gas'>('electricity');
 	const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/London' });
 	const pence = (p: number) => `${p.toLocaleString('en-GB', { maximumFractionDigits: 3 })}p`;
 </script>
@@ -59,7 +58,7 @@
 		<div class="segments" role="radiogroup" aria-label="Fuel">
 			{#each fuels as f (f.value)}
 				<label>
-					<input type="radio" name="fuel" value={f.value} bind:group={fuel} />
+					<input type="radio" name="fuel" value={f.value} checked={f.value === 'electricity'} />
 					<span>{f.label}</span>
 				</label>
 			{/each}
