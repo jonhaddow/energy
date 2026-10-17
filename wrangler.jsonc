@@ -10,6 +10,7 @@
 	},
 	// Only served on energy.app.haddow.me (Google sign-in only allows that address).
 	"workers_dev": false,
+	"routes": [{ "pattern": "energy.app.haddow.me", "custom_domain": true }],
 	// Keeps request logs and console output (Workers Logs, free tier) for debugging.
 	"observability": {
 		"enabled": true
@@ -27,10 +28,10 @@
 	"preview_urls": false,
 	"d1_databases": [
 		{
-			// To be created with --jurisdiction eu, so the data stays in the EU.
+			// Created with --jurisdiction eu, so the data stays in the EU.
 			"binding": "DB",
 			"database_name": "energy",
-			"database_id": "00000000-0000-0000-0000-000000000000",
+			"database_id": "b199d7f5-dcb7-479d-87ea-ee2123cabeff",
 			"migrations_dir": "drizzle"
 		}
 	]
