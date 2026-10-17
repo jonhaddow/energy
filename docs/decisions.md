@@ -8,3 +8,4 @@
 - **Not doing (October 2026)**: notes for life events on the charts (new boiler, insulation), monthly kWh or £ targets, and grid carbon intensity / greener timing. Jon wasn't interested.
 - **Prices typed in on a Settings page** (`tariff`: fuel, start date, unit rate and standing charge in pence with VAT), not fetched: Ecotricity has no API. Prices stay in force until the next one for that fuel; editing is re-entering the same date.
 - **Its own look, not budget's** (October 2026): Space Grotesk, warm paper and charcoal with amber for what matters now, flat bordered cards with 6px corners, small-capital labels. Budget's code patterns are still shared; its design isn't. Tried first: budget's design with just an amber accent.
+- **No energy provider named in the app** (October 2026): the UI says nothing about Ecotricity, so it isn't tied to one supplier.

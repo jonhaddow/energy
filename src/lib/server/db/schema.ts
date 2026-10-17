@@ -74,7 +74,7 @@ export const backfill = sqliteTable('backfill', {
 });
 
 /**
- * Ecotricity's prices for a fuel from a date until the next tariff starts.
+ * Energy prices for a fuel from a date until the next tariff starts.
  * Pence with VAT, as on the bill: rates have fractions of a penny.
  */
 export const tariff = sqliteTable(
