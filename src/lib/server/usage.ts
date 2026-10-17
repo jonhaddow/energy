@@ -1,12 +1,12 @@
-import { count, eq, max, sql, sum } from 'drizzle-orm';
-import { monthHistory, reading, syncStatus, type Fuel } from './db/schema.ts';
+import { asc, count, eq, max, sql, sum } from 'drizzle-orm';
+import { monthHistory, reading, syncStatus, tariff, type Fuel } from './db/schema.ts';
 import { monthlyUse } from '../usage.ts';
 import type { DB } from './db/index.ts';
 
-/** A fuel's use month by month, summed in SQL (a year of readings is ~17k rows). */
+/** A fuel's use and cost month by month, summed in SQL (a year of readings is ~17k rows). */
 export async function fuelMonths(db: DB, fuel: Fuel, thisMonth: string) {
 	const month = sql<string>`substr(${reading.day}, 1, 7)`;
-	const [meter, history] = await Promise.all([
+	const [meter, history, prices] = await Promise.all([
 		db
 			.select({ month, wh: sum(reading.wh).mapWith(Number), halfHours: count() })
 			.from(reading)
@@ -15,9 +15,10 @@ export async function fuelMonths(db: DB, fuel: Fuel, thisMonth: string) {
 		db
 			.select({ month: monthHistory.month, kwh: monthHistory.kwh })
 			.from(monthHistory)
-			.where(eq(monthHistory.fuel, fuel))
+			.where(eq(monthHistory.fuel, fuel)),
+		db.select().from(tariff).where(eq(tariff.fuel, fuel)).orderBy(asc(tariff.from))
 	]);
-	return monthlyUse(meter, history, thisMonth);
+	return monthlyUse(meter, history, thisMonth, prices);
 }
 
 /** The newest day with readings, and how the last sync went. */

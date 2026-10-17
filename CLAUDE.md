@@ -6,10 +6,10 @@ Household gas and electricity use, compared year on year. A PWA at https://energ
 
 - `src/lib/server/glow.ts`: Glowmarkt API (sign-in, resources, half-hourly readings, max 10 days a request)
 - `src/lib/server/sync.ts`: hourly sync: new readings, then backfills history 2 windows per run until a window is empty
-- `src/lib/usage.ts`: months (readings win when they cover the whole month, else sheet history), grouping by year, year-on-year comparison
+- `src/lib/usage.ts`: months (readings win when they cover the whole month, else sheet history), their cost from the prices, both fuels combined, grouping by year, year-on-year comparison in kWh or £
 - `src/lib/server/usage.ts`: the SQL behind it
 - `src/lib/components/YearChart.svelte`: month-by-month lines, one per year
-- `src/routes/+page.svelte`: the main page (`?fuel=gas`); `/settings`: prices (`src/lib/server/tariffs.ts`) and sign out; `/sync`: called by the cron (`worker/entry.js`) with `SYNC_SECRET`
+- `src/routes/+page.svelte`: the main page (`?fuel=gas|both&unit=gbp`); `/settings`: prices (`src/lib/server/tariffs.ts`) and sign out; `/sync`: called by the cron (`worker/entry.js`) with `SYNC_SECRET`
 - `scripts/history.ts`: sheet CSV (`private/`, not in git) to SQL for `month_history`
 - Schema: `src/lib/server/db/schema.ts`
 

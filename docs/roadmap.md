@@ -6,15 +6,19 @@ The aim: not just what we used, but whether it's more or less than it should be,
 
 - Year-on-year electricity and gas, month by month (chart, table, this year so far against the same months last year).
 - The old sheet's months (2025–26) imported; Bright sync built, waiting for the Bright login.
-- Settings: unit rates and standing charges, dated (not used in the views yet). Filled in from the sheet (2025 onwards).
+- Settings: unit rates and standing charges, dated. Filled in from the sheet (2025 onwards).
+- kWh or £ on every view, and a Both tab (electricity and gas together).
 
 ## Phase 1: the basics with meter data
 
 - **Bright sync on**: half-hourly readings hourly, history backfilled.
-- **Real costs**: every view shows £ as well as kWh, from the prices in Settings.
 - **Today and this week**: use so far against a typical day, hour by hour.
 
 ## Phase 2: the big insights
+
+- **Why the bill changed**: split the year-on-year £ change into using less or more against prices changing.
+- **The fixed part**: what the standing charges cost a year, before using anything.
+- **Price changes on the chart**: a marker where new prices start.
 
 - **Always-on use**: the overnight baseline (fridge, router, standby) as kWh and £ a year, and when it changes.
 - **Weather-adjusted gas**: local temperatures (Open-Meteo) so a cold winter doesn't look like worse heating; use per degree day, year on year.
