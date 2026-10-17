@@ -2,8 +2,8 @@
 	import { beforeNavigate } from '$app/navigation';
 	import { updated } from '$app/state';
 	// Served with the app (not Google Fonts): no extra connections before text shows.
-	import '@fontsource-variable/figtree';
-	import figtree from '@fontsource-variable/figtree/files/figtree-latin-wght-normal.woff2?url';
+	import '@fontsource-variable/space-grotesk';
+	import font from '@fontsource-variable/space-grotesk/files/space-grotesk-latin-wght-normal.woff2?url';
 	import './app.css';
 
 	let { children } = $props();
@@ -15,7 +15,7 @@
 </script>
 
 <svelte:head>
-	<link rel="preload" href={figtree} as="font" type="font/woff2" crossorigin="anonymous" />
+	<link rel="preload" href={font} as="font" type="font/woff2" crossorigin="anonymous" />
 </svelte:head>
 
 {@render children()}
