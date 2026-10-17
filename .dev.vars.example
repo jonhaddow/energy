@@ -1,0 +1,4 @@
+GOOGLE_CLIENT_SECRET=dev-client-secret
+GLOW_USERNAME=
+GLOW_PASSWORD=
+SYNC_SECRET=dev-sync-secret
