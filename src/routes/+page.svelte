@@ -12,6 +12,17 @@
 	/** This month in the chart: the newest month with data. */
 	const latest = $derived(data.months.at(-1));
 	const selected = $derived(latest ? Number(latest.month.slice(5, 7)) - 1 : 0);
+	/** The parts of a £ change worth a line: rounding to £0 isn't. */
+	const whyLines = (why: { use: number; prices: number }) =>
+		[
+			{ label: why.use < 0 ? 'Using less' : 'Using more', value: why.use },
+			{ label: why.prices < 0 ? 'Lower prices' : 'Higher prices', value: why.prices }
+		]
+			.filter((l) => Math.round(l.value) !== 0)
+			.map((l) => ({
+				label: l.label,
+				amount: `${l.value < 0 ? '−' : '+'}${formatAmount(Math.abs(l.value), 'gbp')}`
+			}));
 	const span = (months: number[]) =>
 		months.length === 1 ? MONTHS[months[0]] : `${MONTHS[months[0]]}–${MONTHS[months.at(-1)!]}`;
 
@@ -72,6 +83,16 @@
 					{less ? 'less' : 'more'} than {years[1].year}
 					<span class="muted">({formatAmount(vsLastYear.beforeValue, data.unit)})</span>
 				</p>
+				{#if vsLastYear.why}
+					<ul class="why">
+						{#each whyLines(vsLastYear.why) as line (line.label)}
+							<li>
+								<span>{line.label}</span>
+								<strong>{line.amount}</strong>
+							</li>
+						{/each}
+					</ul>
+				{/if}
 			</section>
 		{/if}
 
@@ -200,6 +221,20 @@
 		line-height: 1.05;
 		letter-spacing: -0.03em;
 		color: var(--accent);
+	}
+	.why {
+		list-style: none;
+		margin: 10px 0 0;
+		padding: 10px 0 0;
+		border-top: 1px solid var(--line);
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		font-size: 15px;
+	}
+	.why li {
+		display: flex;
+		justify-content: space-between;
 	}
 	.good {
 		color: var(--good);
