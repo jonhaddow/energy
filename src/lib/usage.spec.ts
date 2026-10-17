@@ -10,8 +10,8 @@ describe('monthlyUse', () => {
 	it('prefers readings that cover the whole month', () => {
 		const meter = [{ month: '2025-09', wh: 310_500, halfHours: 30 * 48 }];
 		expect(monthlyUse(meter, history, '2026-10', [])).toEqual([
-			{ month: '2025-08', kwh: 250, pence: null, partial: false },
-			{ month: '2025-09', kwh: 310.5, pence: null, partial: false }
+			{ month: '2025-08', kwh: 250, pence: null, lastYearPricesPence: null, partial: false },
+			{ month: '2025-09', kwh: 310.5, pence: null, lastYearPricesPence: null, partial: false }
 		]);
 	});
 
@@ -21,6 +21,7 @@ describe('monthlyUse', () => {
 			month: '2025-09',
 			kwh: 300,
 			pence: null,
+			lastYearPricesPence: null,
 			partial: false
 		});
 	});
@@ -64,7 +65,8 @@ describe('compare', () => {
 			value: 240,
 			beforeValue: 300,
 			change: expect.closeTo(-0.2),
-			months: [0, 1]
+			months: [0, 1],
+			why: null
 		});
 	});
 
@@ -73,6 +75,23 @@ describe('compare', () => {
 			value: expect.closeTo(24),
 			beforeValue: expect.closeTo(30)
 		});
+	});
+
+	it('splits a change in pounds into use and prices', () => {
+		const prices = [
+			{ from: '2025-01-01', unitPence: 10, standingPence: 0 },
+			{ from: '2026-01-01', unitPence: 20, standingPence: 0 }
+		];
+		const history = [
+			{ month: '2025-01', kwh: 100 },
+			{ month: '2026-01', kwh: 80 }
+		];
+		const [now, before] = byYear(monthlyUse([], history, '2026-03', prices));
+		// £10 last year; 80 kWh would have been £8 (using less: −£2), but cost £16 (prices: +£8).
+		const why = compare(now, before, 'gbp')!.why!;
+		expect(why.use).toBeCloseTo(-2);
+		expect(why.prices).toBeCloseTo(8);
+		expect(compare(now, before, 'kwh')!.why).toBeNull();
 	});
 
 	it('has nothing to compare without an earlier year', () => {
@@ -105,6 +124,7 @@ describe('combined', () => {
 		month: m,
 		kwh,
 		pence,
+		lastYearPricesPence: pence,
 		partial
 	});
 

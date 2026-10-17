@@ -7,6 +7,8 @@ export type MonthUse = {
 	kwh: number;
 	/** What it cost, standing charges included; null when a day has no price. */
 	pence: number | null;
+	/** The same use at the prices a year before, so a change splits into use and prices. */
+	lastYearPricesPence: number | null;
 	/** Not a whole month: the current one so far, or one the meter data only partly covers. */
 	partial: boolean;
 };
@@ -44,8 +46,22 @@ export function monthlyUse(
 	prices: Price[]
 ): MonthUse[] {
 	const months = new Map<string, MonthUse>();
-	const add = (month: string, kwh: number, days: number, partial: boolean) =>
-		months.set(month, { month, kwh, pence: monthCost(month, kwh, days, prices), partial });
+	const add = (month: string, kwh: number, days: number, partial: boolean) => {
+		const yearBefore = `${Number(month.slice(0, 4)) - 1}${month.slice(4)}`;
+		months.set(month, {
+			month,
+			kwh,
+			pence: monthCost(month, kwh, days, prices),
+			// A leap February has a day more than the one before.
+			lastYearPricesPence: monthCost(
+				yearBefore,
+				kwh,
+				Math.min(days, daysInMonth(yearBefore)),
+				prices
+			),
+			partial
+		});
+	};
 	for (const h of history) add(h.month, h.kwh, daysInMonth(h.month), false);
 	for (const m of meter) {
 		// Clock changes add or drop two half hours; allow a few more missing.
@@ -61,6 +77,9 @@ export function monthlyUse(
 	return [...months.values()].sort((a, b) => a.month.localeCompare(b.month));
 }
 
+/** Null if either is. */
+const plus = (a: number | null, b: number | null) => (a === null || b === null ? null : a + b);
+
 /** Two fuels added together, for the months both have. */
 export function combined(a: MonthUse[], b: MonthUse[]): MonthUse[] {
 	const other = new Map(b.map((m) => [m.month, m]));
@@ -70,7 +89,8 @@ export function combined(a: MonthUse[], b: MonthUse[]): MonthUse[] {
 		return {
 			month: m.month,
 			kwh: m.kwh + o.kwh,
-			pence: m.pence === null || o.pence === null ? null : m.pence + o.pence,
+			pence: plus(m.pence, o.pence),
+			lastYearPricesPence: plus(m.lastYearPricesPence, o.lastYearPricesPence),
 			partial: m.partial || o.partial
 		};
 	});
@@ -107,6 +127,8 @@ export function compare(year: Year, before: Year | undefined, unit: Unit) {
 	if (!before) return null;
 	let value = 0;
 	let beforeValue = 0;
+	/** £ only: this year's use at last year's prices. */
+	let atLastYearPrices: number | null = 0;
 	const months: number[] = [];
 	year.months.forEach((m, i) => {
 		const b = before.months[i];
@@ -116,8 +138,19 @@ export function compare(year: Year, before: Year | undefined, unit: Unit) {
 		if (v === null || bv === null) return;
 		value += v;
 		beforeValue += bv;
+		atLastYearPrices = plus(atLastYearPrices, m.lastYearPricesPence);
 		months.push(i);
 	});
 	if (!months.length || !beforeValue) return null;
-	return { value, beforeValue, change: value / beforeValue - 1, months };
+	return {
+		value,
+		beforeValue,
+		change: value / beforeValue - 1,
+		months,
+		/** In pounds, how much of the change came from using more or less, and how much from prices. */
+		why:
+			unit === 'gbp' && atLastYearPrices !== null
+				? { use: atLastYearPrices / 100 - beforeValue, prices: value - atLastYearPrices / 100 }
+				: null
+	};
 }
