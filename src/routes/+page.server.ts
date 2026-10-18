@@ -34,7 +34,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 		syncInfo(locals.db, fuel === 'both' ? 'electricity' : fuel),
 		allTariffs(locals.db),
 		fuel === 'gas' ? degreeDays(locals.db) : [],
-		allTypical(locals.db)
+		fuel === 'both' ? [] : allTypical(locals.db)
 	]);
 	const year = lastTwelveMonths(months);
 	const homes = typical.find((t) => t.fuel === fuel);

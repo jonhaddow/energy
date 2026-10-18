@@ -25,9 +25,9 @@ const LEVELS = ['low', 'medium', 'high'] as const;
 export function readTypicalForm(form: FormData): Typical[] | null {
 	const rows = FUELS.map((fuel: Fuel) => {
 		const [low, medium, high] = LEVELS.map((l) => {
-			const v = form.get(`${fuel}-${l}`);
-			const n = Number(v);
-			return typeof v === 'string' && v.trim() && Number.isInteger(n) && n > 0 ? n : null;
+			// A blank or missing field is 0, so fails too.
+			const n = Number(form.get(`${fuel}-${l}`));
+			return Number.isInteger(n) && n > 0 ? n : null;
 		});
 		return low && medium && high && low < medium && medium < high
 			? { fuel, low, medium, high }
