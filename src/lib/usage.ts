@@ -167,10 +167,15 @@ export function compare(months: MonthUse[], unit: Unit) {
 	};
 }
 
-/** What a fuel's standing charge comes to in a year at the prices on `day`, in pence; null without a price. */
-export function standingPerYear(prices: Price[], day: string) {
-	const p = prices.findLast((p) => p.from <= day);
-	return p ? p.standingPence * 365 : null;
+/** The fuels' standing charges for a year at the prices on `day`, in pence; null if one has no price. */
+export function standingPerYear(fuels: Price[][], day: string) {
+	let pence = 0;
+	for (const prices of fuels) {
+		const p = prices.findLast((p) => p.from <= day);
+		if (!p) return null;
+		pence += p.standingPence * 365;
+	}
+	return pence;
 }
 
 /** The days new prices start (YYYY-MM-DD), oldest first: each fuel's first prices aren't a change. */

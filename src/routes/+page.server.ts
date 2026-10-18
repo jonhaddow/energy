@@ -29,7 +29,6 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 	const prices = (fuel === 'both' ? FUELS : [fuel]).map((f) =>
 		tariffs.filter((t) => t.fuel === f).toReversed()
 	);
-	const standing = prices.map((p) => standingPerYear(p, today));
 	return {
 		fuel,
 		unit,
@@ -37,7 +36,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 		sync,
 		today,
 		/** Standing charges a year at today's prices, in pence. */
-		fixedPence: standing.includes(null) ? null : (standing as number[]).reduce((a, b) => a + b),
-		priceChanges: priceChanges(...prices)
+		fixedPence: unit === 'gbp' ? standingPerYear(prices, today) : null,
+		priceChanges: unit === 'gbp' ? priceChanges(...prices) : []
 	};
 };

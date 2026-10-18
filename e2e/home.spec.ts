@@ -29,6 +29,7 @@ test('shows pounds, and both fuels together', async ({ page }) => {
 	// The chart marks April's new prices; the caption names them for that month.
 	const chart = page.getByRole('img', { name: /Use each month/ });
 	const { width } = (await chart.boundingBox())!;
+	// April is at x ≈ 97 of the chart's 340 wide (YearChart's W and PAD).
 	await chart.hover({ position: { x: (width * 100) / 340, y: 20 } });
 	await expect(page.getByText('New prices from 1 Apr 2026')).toBeVisible();
 	await page.getByRole('link', { name: 'Both' }).click();

@@ -179,10 +179,11 @@ describe('standingPerYear', () => {
 		{ from: '2025-06-16', unitPence: 30, standingPence: 60 }
 	];
 
-	it('is a year of the standing charge in force that day', () => {
-		expect(standingPerYear(prices, '2025-06-15')).toBe(50 * 365);
-		expect(standingPerYear(prices, '2026-01-01')).toBe(60 * 365);
-		expect(standingPerYear(prices, '2024-12-31')).toBeNull();
+	it('is a year of the standing charges in force that day', () => {
+		expect(standingPerYear([prices], '2025-06-15')).toBe(50 * 365);
+		expect(standingPerYear([prices, prices], '2026-01-01')).toBe(120 * 365);
+		expect(standingPerYear([prices], '2024-12-31')).toBeNull();
+		expect(standingPerYear([prices, []], '2026-01-01')).toBeNull();
 	});
 });
 

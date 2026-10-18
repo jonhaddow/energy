@@ -91,7 +91,7 @@
 						{/each}
 					</ul>
 				{/if}
-				{#if data.unit === 'gbp' && data.fixedPence !== null}
+				{#if data.fixedPence !== null}
 					<p class="fixed muted small">
 						Standing charges: {formatAmount(data.fixedPence / 100, 'gbp')} a year, before using anything
 					</p>
@@ -101,12 +101,7 @@
 
 		<section class="card chart">
 			<h2>Month by month</h2>
-			<YearChart
-				{years}
-				{selected}
-				unit={data.unit}
-				priceChanges={data.unit === 'gbp' ? data.priceChanges : []}
-			/>
+			<YearChart {years} {selected} unit={data.unit} priceChanges={data.priceChanges} />
 		</section>
 
 		<section class="card table">

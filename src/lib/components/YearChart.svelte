@@ -8,8 +8,8 @@
 		years,
 		selected,
 		unit,
-		priceChanges = []
-	}: { years: Year[]; selected: number; unit: Unit; priceChanges?: string[] } = $props();
+		priceChanges
+	}: { years: Year[]; selected: number; unit: Unit; priceChanges: string[] } = $props();
 
 	const W = 340;
 	const H = 150;
@@ -50,10 +50,11 @@
 	/** Price changes in the years drawn: where on the axis, and in which year's colour. */
 	const markers = $derived(
 		priceChanges.flatMap((day) => {
-			const i = shown.findIndex((yr) => String(yr.year) === day.slice(0, 4));
+			const [year, mm, dd] = day.split('-').map(Number);
+			const i = shown.findIndex((yr) => yr.year === year);
 			if (i < 0) return [];
-			const month = Number(day.slice(5, 7)) - 1;
-			const at = month + (Number(day.slice(8)) - 1) / daysInMonth(day.slice(0, 7));
+			const month = mm - 1;
+			const at = month + (dd - 1) / daysInMonth(day.slice(0, 7));
 			return { day, month, i, x: PAD + (at * (W - 2 * PAD)) / 11 };
 		})
 	);
