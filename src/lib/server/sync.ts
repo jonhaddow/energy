@@ -39,21 +39,23 @@ export async function saveReadings(db: DB, fuel: Fuel, points: [number, number][
  * history is all in, a couple of windows further back.
  */
 async function syncFuel(db: DB, glow: Glow, fuel: Fuel, resourceId: string, now: number) {
-	const [range] = await db
-		.select({ first: min(reading.start), last: max(reading.start) })
-		.from(reading)
-		.where(and(eq(reading.fuel, fuel), gt(reading.wh, 0)));
+	const real = and(eq(reading.fuel, fuel), gt(reading.wh, 0));
+	const [{ last }] = await db.select({ last: max(reading.start) }).from(reading).where(real);
 	let added = 0;
 
 	// Forward: from the last real reading (or 30 days back, the first time) to now.
-	for (let from = (range.last ?? now - 30 * DAY) - REFETCH; from < now; from += WINDOW)
+	for (let from = (last ?? now - 30 * DAY) - REFETCH; from < now; from += WINDOW)
 		added += (
 			await saveReadings(db, fuel, await glow.halfHours(resourceId, from, from + WINDOW), now)
 		).length;
 
 	const [done] = await db.select().from(backfill).where(eq(backfill.fuel, fuel));
 	if (done) return added;
-	let to = range.first ?? now - 30 * DAY;
+	// Back from the first real reading. None yet (Bright hasn't the meter's
+	// data from the DCC yet): an empty window wouldn't mean the history's start.
+	const [{ first }] = await db.select({ first: min(reading.start) }).from(reading).where(real);
+	if (first === null) return added;
+	let to = first;
 	for (let i = 0; i < BACKFILL_WINDOWS; i++) {
 		const points = to < now - OLDEST ? [] : await glow.halfHours(resourceId, to - WINDOW, to);
 		// Nothing in a whole window: that's the start of the meter's history.

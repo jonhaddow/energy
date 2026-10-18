@@ -5,7 +5,7 @@ The aim: not just what we used, but whether it's more or less than it should be,
 ## Live
 
 - Year-on-year electricity and gas, month by month (chart, table), and the last 12 months against the 12 before.
-- The old sheet's months (Jul 2024 – Sep 2026) imported; Bright sync built, waiting for the Bright login.
+- The old sheet's months (Jul 2024 – Sep 2026) imported; Bright sync on (login set up Oct 2026), waiting for Bright to get the meter data from the DCC.
 - Settings: unit rates and standing charges, dated. Filled in from the sheet (2025 onwards).
 - kWh or £ on every view, and a Both tab (electricity and gas together).
 - Why the bill changed: the year-on-year £ change split into using less or more, and prices.
