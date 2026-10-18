@@ -5,6 +5,7 @@ import {
 	byYear,
 	combined,
 	compare,
+	lastTwelveMonths,
 	monthCost,
 	monthlyUse,
 	priceChanges,
@@ -229,5 +230,24 @@ describe('weatherAdjusted', () => {
 		expect(
 			weatherAdjusted(use, [...weather('2024-01', 100), ...weather('2025-01', 120, 1)])
 		).toBeNull();
+	});
+});
+
+describe('lastTwelveMonths', () => {
+	const prices = [{ from: '2024-01-01', unitPence: 10, standingPence: 0 }];
+	const history = (n: number) =>
+		Array.from({ length: n }, (_, i) => ({ month: addMonths('2025-01', i), kwh: 100 }));
+
+	it('adds up the last 12 whole months', () => {
+		const meter = [{ month: '2026-02', wh: 5000, halfHours: 48 }];
+		expect(lastTwelveMonths(monthlyUse(meter, history(13), '2026-02', prices))).toEqual({
+			from: '2025-02',
+			to: '2026-01',
+			kwh: 1200
+		});
+	});
+
+	it('needs all 12', () => {
+		expect(lastTwelveMonths(monthlyUse([], history(11), '2026-02', prices))).toBeNull();
 	});
 });

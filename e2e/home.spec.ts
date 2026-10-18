@@ -7,6 +7,9 @@ test('compares this year with last year', async ({ page }) => {
 	await expect(page.getByText('640 kWh')).toBeVisible();
 	await expect(page.getByText('20% less than a year before')).toBeVisible();
 	await expect(page.getByRole('row', { name: 'Feb 200 250' })).toBeVisible();
+	await expect(
+		page.getByText('1,990 kWh a year: between a low-use and a typical home.')
+	).toBeVisible();
 });
 
 test('switches to gas', async ({ page }) => {
