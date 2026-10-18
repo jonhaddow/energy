@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { testDb } from './test-db.ts';
-import { addQuote, allQuotes, readQuoteForm, removeQuote } from './quotes.ts';
+import { readQuoteForm } from './quotes.ts';
 
 const form = (fields: Record<string, string>) => {
 	const f = new FormData();
@@ -34,14 +33,5 @@ describe('quotes', () => {
 	it('refuses a missing name or price', () => {
 		expect(readQuoteForm(form({ ...good, name: ' ' }))).toBeNull();
 		expect(readQuoteForm(form({ ...good, gasUnit: '' }))).toBeNull();
-	});
-
-	it('adds and removes', async () => {
-		const db = await testDb();
-		await addQuote(db, readQuoteForm(form(good))!);
-		const [q] = await allQuotes(db);
-		expect(q.name).toBe('Octopus 12M Fixed');
-		await removeQuote(db, q.id);
-		expect(await allQuotes(db)).toEqual([]);
 	});
 });

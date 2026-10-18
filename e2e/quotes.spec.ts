@@ -4,10 +4,12 @@ import { open } from './helpers.ts';
 test('prices a quote on our year of use, against what we pay now', async ({ page }) => {
 	await open(page, '/');
 	await page.getByRole('link', { name: 'Quotes' }).click();
-	await expect(page.getByText('1,990 kWh of electricity and 7,700 kWh of gas')).toBeVisible();
-	// Now: 1,990 × 26.1p + 7,700 × 6p + 365 × (51.2p + 30p) = £1,278.
+	await expect(
+		page.getByText('Feb 2025 – Jan 2026: 2,090 kWh of electricity and 7,700 kWh of gas')
+	).toBeVisible();
+	// Now: 2,090 × 26.1p + 7,700 × 6p + 365 × (51.2p + 30p) = £1,304.
 	await expect(page.getByRole('listitem').filter({ hasText: 'What we pay now' })).toContainText(
-		'£1,278'
+		'£1,304'
 	);
 	await page.getByLabel('Name').fill('Cheap Fixed');
 	const form = page.locator('form.add');
@@ -20,10 +22,10 @@ test('prices a quote on our year of use, against what we pay now', async ({ page
 		await group.getByLabel('Standing').fill(standing);
 	}
 	await page.getByRole('button', { name: 'Add' }).click();
-	// 1,990 × 20p + 7,700 × 5p + 365 × 80p = £1,075: £203 less.
+	// 2,090 × 20p + 7,700 × 5p + 365 × 80p = £1,095: £209 less.
 	const quote = page.getByRole('listitem').filter({ hasText: 'Cheap Fixed' });
-	await expect(quote).toContainText('£1,075');
-	await expect(quote).toContainText('£203 less a year');
+	await expect(quote).toContainText('£1,095');
+	await expect(quote).toContainText('£209 less a year');
 	await page.getByRole('button', { name: 'Remove Cheap Fixed' }).click();
 	await expect(quote).toBeHidden();
 });

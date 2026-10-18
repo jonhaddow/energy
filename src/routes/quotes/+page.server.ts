@@ -3,7 +3,7 @@ import { dayOf } from '#lib/dates.ts';
 import { addQuote, allQuotes, readQuoteForm, removeQuote } from '#lib/server/quotes.ts';
 import { allTariffs } from '#lib/server/tariffs.ts';
 import { fuelMonths } from '#lib/server/usage.ts';
-import { lastTwelveMonths, yearCost, type Rates } from '#lib/usage.ts';
+import { addMonths, latestWhole, twelveMonthsTo, yearCost, type Rates } from '#lib/usage.ts';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -15,10 +15,13 @@ export const load: PageServerLoad = async ({ locals }) => {
 		allTariffs(locals.db),
 		allQuotes(locals.db)
 	]);
-	const e = lastTwelveMonths(electricity);
-	const g = lastTwelveMonths(gas);
-	if (!e || !g) return { use: null, now: null, quotes: [] };
-	const kwh = { electricity: e.kwh, gas: g.kwh };
+	// The same 12 months for both fuels: to the older of their newest whole months.
+	const [ee, ge] = [latestWhole(electricity), latestWhole(gas)];
+	const to = ee && ge && (ee < ge ? ee : ge);
+	const e = to ? twelveMonthsTo(electricity, to) : null;
+	const g = to ? twelveMonthsTo(gas, to) : null;
+	if (!to || e === null || g === null) return { use: null, now: null, quotes: [] };
+	const kwh = { electricity: e, gas: g };
 
 	// Newest first, so the first that's started is today's.
 	const current = (fuel: string) => tariffs.find((t) => t.fuel === fuel && t.from <= today);
@@ -27,7 +30,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const now = ce && cg ? yearCost(kwh, { electricity: ce, gas: cg }) : null;
 
 	return {
-		use: { from: e.from, to: e.to, ...kwh },
+		use: { from: addMonths(to, -11), to, ...kwh },
 		now,
 		quotes: quotes
 			.map((q) => {

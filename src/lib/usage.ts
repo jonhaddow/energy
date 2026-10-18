@@ -214,18 +214,19 @@ export function weatherAdjusted(months: MonthUse[], weather: MonthWeather[]) {
 	};
 }
 
-/** The last 12 whole months' use; null unless all 12 have data. */
-export function lastTwelveMonths(months: MonthUse[]) {
-	const latest = months.findLast((m) => !m.partial);
-	if (!latest) return null;
+/** The newest whole month (YYYY-MM), if any. */
+export const latestWhole = (months: MonthUse[]) => months.findLast((m) => !m.partial)?.month;
+
+/** The 12 months' use to `to` (YYYY-MM); null unless all 12 are whole. */
+export function twelveMonthsTo(months: MonthUse[], to: string) {
 	const byMonth = new Map(months.map((m) => [m.month, m]));
 	let kwh = 0;
 	for (let back = 0; back < 12; back++) {
-		const m = byMonth.get(addMonths(latest.month, -back));
+		const m = byMonth.get(addMonths(to, -back));
 		if (!m || m.partial) return null;
 		kwh += m.kwh;
 	}
-	return { from: addMonths(latest.month, -11), to: latest.month, kwh };
+	return kwh;
 }
 
 /** Unit rate and standing charge for each fuel, in pence with VAT. */
