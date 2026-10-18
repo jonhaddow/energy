@@ -91,7 +91,7 @@
 	<svg
 		viewBox="0 0 {W} {H + 20}"
 		role="img"
-		aria-label="Use each month, by year (the table below has the numbers)"
+		aria-label="Use each month, by year"
 		onpointermove={pick}
 		onpointerdown={pick}
 		onpointerleave={() => (picked = null)}
@@ -135,6 +135,10 @@
 <style>
 	figure {
 		margin: 0;
+		/* Long presses scrub the chart, not select its text. */
+		user-select: none;
+		-webkit-user-select: none;
+		-webkit-touch-callout: none;
 		/* Fixed per year's place: this year in amber, earlier years fading back. */
 		--y0: var(--accent);
 		--y1: light-dark(#57534e, #b5afa5);

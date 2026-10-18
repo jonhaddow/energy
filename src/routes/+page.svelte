@@ -1,13 +1,12 @@
 <script lang="ts">
 	import YearChart from '#lib/components/YearChart.svelte';
-	import { MONTHS, formatDay, formatMonths } from '#lib/dates.ts';
+	import { formatDay, formatMonths } from '#lib/dates.ts';
 	import { formatAmount, formatPercent } from '#lib/format.ts';
-	import { byYear, compare, valueOf } from '#lib/usage.ts';
+	import { byYear, compare } from '#lib/usage.ts';
 
 	let { data } = $props();
 
 	const years = $derived(byYear(data.months));
-	const shown = $derived(years.slice(0, 3));
 	const vsLastYear = $derived(compare(data.months, data.unit));
 	/** This month in the chart: the newest month with data. */
 	const latest = $derived(data.months.at(-1));
@@ -115,37 +114,6 @@
 			<h2>Month by month</h2>
 			<YearChart {years} {selected} unit={data.unit} priceChanges={data.priceChanges} />
 		</section>
-
-		<section class="card table">
-			<table>
-				<thead>
-					<tr>
-						<th scope="col">Month</th>
-						{#each shown as yr (yr.year)}<th scope="col">{yr.year}</th>{/each}
-					</tr>
-				</thead>
-				<tbody>
-					{#each MONTHS as label, i (label)}
-						<tr>
-							<th scope="row">{label}</th>
-							{#each shown as yr (yr.year)}
-								{@const m = yr.months[i]}
-								{@const v = valueOf(m, data.unit)}
-								<td class:muted={m?.partial}>
-									{v === null ? '' : Math.round(v).toLocaleString('en-GB')}{v !== null && m?.partial
-										? '*'
-										: ''}
-								</td>
-							{/each}
-						</tr>
-					{/each}
-				</tbody>
-			</table>
-			<p class="muted small">
-				{data.unit === 'kwh' ? 'kWh' : '£, from the prices in Settings'}. * so far, or not a full
-				month of readings.
-			</p>
-		</section>
 	{/if}
 
 	<footer class="muted small">
@@ -173,7 +141,7 @@
 		flex-direction: column;
 		gap: 20px;
 	}
-	/* Laptops: the headline and table down the left, the chart beside them. */
+	/* Laptops: the headline down the left, the chart beside them. */
 	@media (min-width: 960px) {
 		main {
 			display: grid;
@@ -181,9 +149,8 @@
 			grid-template-areas:
 				'top top'
 				'headline chart'
-				'table chart'
 				'foot foot';
-			grid-template-rows: auto auto 1fr auto;
+			grid-template-rows: auto 1fr auto;
 			align-items: start;
 		}
 		header {
@@ -205,9 +172,6 @@
 			grid-area: chart;
 			position: sticky;
 			top: 24px;
-		}
-		.table {
-			grid-area: table;
 		}
 		footer {
 			grid-area: foot;
@@ -270,37 +234,8 @@
 	.chart h2 {
 		margin-bottom: 10px;
 	}
-	table {
-		width: 100%;
-		border-collapse: collapse;
-		font-size: 15px;
-	}
-	th,
-	td {
-		padding: 7px 4px;
-		text-align: right;
-	}
-	th:first-child {
-		text-align: left;
-	}
-	thead th {
-		font-size: 11px;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.12em;
-		color: var(--muted);
-	}
-	tbody tr + tr > * {
-		border-top: 1px solid var(--line);
-	}
-	tbody th {
-		font-weight: 500;
-	}
 	.small {
 		font-size: 13px;
-	}
-	.table .small {
-		margin-top: 8px;
 	}
 	footer {
 		display: flex;
