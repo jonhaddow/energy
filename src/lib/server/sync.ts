@@ -40,7 +40,10 @@ export async function saveReadings(db: DB, fuel: Fuel, points: [number, number][
  */
 async function syncFuel(db: DB, glow: Glow, fuel: Fuel, resourceId: string, now: number) {
 	const real = and(eq(reading.fuel, fuel), gt(reading.wh, 0));
-	const [{ last }] = await db.select({ last: max(reading.start) }).from(reading).where(real);
+	const [{ last }] = await db
+		.select({ last: max(reading.start) })
+		.from(reading)
+		.where(real);
 	let added = 0;
 
 	// Forward: from the last real reading (or 30 days back, the first time) to now.
@@ -53,7 +56,10 @@ async function syncFuel(db: DB, glow: Glow, fuel: Fuel, resourceId: string, now:
 	if (done) return added;
 	// Back from the first real reading. None yet (Bright hasn't the meter's
 	// data from the DCC yet): an empty window wouldn't mean the history's start.
-	const [{ first }] = await db.select({ first: min(reading.start) }).from(reading).where(real);
+	const [{ first }] = await db
+		.select({ first: min(reading.start) })
+		.from(reading)
+		.where(real);
 	if (first === null) return added;
 	let to = first;
 	for (let i = 0; i < BACKFILL_WINDOWS; i++) {
