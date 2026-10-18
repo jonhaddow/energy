@@ -21,7 +21,7 @@ export const saveTariff = (db: DB, t: Tariff) =>
 export const removeTariff = (db: DB, fuel: Fuel, from: string) =>
 	db.delete(tariff).where(and(eq(tariff.fuel, fuel), eq(tariff.from, from)));
 
-const pence = (value: FormDataEntryValue | null) => {
+export const pence = (value: FormDataEntryValue | null) => {
 	const n = Number(value);
 	return typeof value === 'string' && value.trim() && Number.isFinite(n) && n >= 0 && n < 1000
 		? n

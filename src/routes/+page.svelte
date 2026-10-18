@@ -157,7 +157,10 @@
 		{:else if !data.sync.status}
 			<p>Not syncing with Bright yet.</p>
 		{/if}
-		<a class="link" href="/settings">Settings</a>
+		<nav class="links">
+			<a class="link" href="/quotes">Quotes</a>
+			<a class="link" href="/settings">Settings</a>
+		</nav>
 	</footer>
 </main>
 
@@ -305,6 +308,10 @@
 		align-items: center;
 		gap: 6px;
 		text-align: center;
+	}
+	.links {
+		display: flex;
+		gap: 8px;
 	}
 	.link {
 		padding: 8px;

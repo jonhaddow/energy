@@ -213,3 +213,28 @@ export function weatherAdjusted(months: MonthUse[], weather: MonthWeather[]) {
 		colder: degreeDays / beforeDegreeDays - 1
 	};
 }
+
+/** The last 12 whole months' use; null unless all 12 have data. */
+export function lastTwelveMonths(months: MonthUse[]) {
+	const latest = months.findLast((m) => !m.partial);
+	if (!latest) return null;
+	const byMonth = new Map(months.map((m) => [m.month, m]));
+	let kwh = 0;
+	for (let back = 0; back < 12; back++) {
+		const m = byMonth.get(addMonths(latest.month, -back));
+		if (!m || m.partial) return null;
+		kwh += m.kwh;
+	}
+	return { from: addMonths(latest.month, -11), to: latest.month, kwh };
+}
+
+/** Unit rate and standing charge for each fuel, in pence with VAT. */
+export type Rates = Record<'electricity' | 'gas', { unitPence: number; standingPence: number }>;
+
+/** A year's bill at some prices for our use (kWh a year each fuel), in pence: use and standing charges. */
+export function yearCost(kwh: Record<'electricity' | 'gas', number>, rates: Rates) {
+	const fuels = ['electricity', 'gas'] as const;
+	const use = fuels.reduce((p, f) => p + kwh[f] * rates[f].unitPence, 0);
+	const standing = fuels.reduce((p, f) => p + 365 * rates[f].standingPence, 0);
+	return { use, standing, total: use + standing };
+}

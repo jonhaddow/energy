@@ -105,3 +105,20 @@ export const weatherDay = sqliteTable('weather_day', {
 	day: text('day').primaryKey(),
 	meanC: real('mean_c').notNull()
 });
+
+/**
+ * Offers to compare with the prices we pay: each priced on our last 12
+ * months' use. Pence with VAT, like `tariff`.
+ */
+export const quote = sqliteTable('quote', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	/** Supplier and tariff, e.g. "Octopus 12M Fixed". */
+	name: text('name').notNull(),
+	electricityUnitPence: real('electricity_unit_pence').notNull(),
+	/** Per day. */
+	electricityStandingPence: real('electricity_standing_pence').notNull(),
+	gasUnitPence: real('gas_unit_pence').notNull(),
+	gasStandingPence: real('gas_standing_pence').notNull(),
+	/** YYYY-MM-DD the fixed prices end, if it's a fixed term. */
+	fixedUntil: text('fixed_until')
+});

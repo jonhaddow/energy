@@ -4,7 +4,8 @@ import { defineConfig, devices } from '@playwright/test';
 // starts a dev server on its own fresh database (e2e/reset-db.sh), signs in
 // once with the dev-only sign-in, and runs the specs one at a time, because
 // they share that database.
-const PORT = 5180;
+// Not 5180: budget uses that, and sessions run both at once.
+const PORT = 5181;
 
 export default defineConfig({
 	testDir: 'e2e',
