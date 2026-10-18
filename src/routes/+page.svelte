@@ -91,12 +91,17 @@
 						{/each}
 					</ul>
 				{/if}
+				{#if data.fixedPence !== null}
+					<p class="fixed muted small">
+						Standing charges: {formatAmount(data.fixedPence / 100, 'gbp')} a year, before using anything
+					</p>
+				{/if}
 			</section>
 		{/if}
 
 		<section class="card chart">
 			<h2>Month by month</h2>
-			<YearChart {years} {selected} unit={data.unit} />
+			<YearChart {years} {selected} unit={data.unit} priceChanges={data.priceChanges} />
 		</section>
 
 		<section class="card table">
@@ -233,6 +238,11 @@
 	.why li {
 		display: flex;
 		justify-content: space-between;
+	}
+	.fixed {
+		margin-top: 10px;
+		padding-top: 10px;
+		border-top: 1px solid var(--line);
 	}
 	.good {
 		color: var(--good);

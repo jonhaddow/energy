@@ -1,10 +1,15 @@
 <script lang="ts">
-	import { MONTHS } from '#lib/dates.ts';
+	import { MONTHS, daysInMonth, formatDate } from '#lib/dates.ts';
 	import { formatAmount } from '#lib/format.ts';
 	import { valueOf, type Unit, type Year } from '#lib/usage.ts';
 
-	/** Newest year first; the first three are drawn. */
-	let { years, selected, unit }: { years: Year[]; selected: number; unit: Unit } = $props();
+	/** Newest year first; the first three are drawn. `priceChanges`: days new prices start, marked. */
+	let {
+		years,
+		selected,
+		unit,
+		priceChanges
+	}: { years: Year[]; selected: number; unit: Unit; priceChanges: string[] } = $props();
 
 	const W = 340;
 	const H = 150;
@@ -42,6 +47,18 @@
 		return lines;
 	}
 
+	/** Price changes in the years drawn: where on the axis, and in which year's colour. */
+	const markers = $derived(
+		priceChanges.flatMap((day) => {
+			const [year, mm, dd] = day.split('-').map(Number);
+			const i = shown.findIndex((yr) => yr.year === year);
+			if (i < 0) return [];
+			const month = mm - 1;
+			const at = month + (dd - 1) / daysInMonth(day.slice(0, 7));
+			return { day, month, i, x: PAD + (at * (W - 2 * PAD)) / 11 };
+		})
+	);
+
 	let picked = $state<number | null>(null);
 	const month = $derived(picked ?? selected);
 
@@ -67,6 +84,9 @@
 				</li>
 			{/each}
 		</ul>
+		{#each markers.filter((m) => m.month === month) as m (m.day)}
+			<span class="muted">◆ New prices from {formatDate(m.day)}</span>
+		{/each}
 	</figcaption>
 	<svg
 		viewBox="0 0 {W} {H + 20}"
@@ -102,6 +122,9 @@
 					style="--c: var(--y{i})"
 				/>
 			{/if}
+		{/each}
+		{#each markers as m (m.day)}
+			<path class="marker" d="M{m.x} {H - 5}l5 5-5 5-5-5z" style="--c: var(--y{m.i})" />
 		{/each}
 		{#each MONTHS as label, i (label)}
 			{#if i % 2 === 0}<text x={x(i)} y={H + 16} text-anchor="middle">{label}</text>{/if}
@@ -178,6 +201,11 @@
 	.dot.partial {
 		fill: var(--card);
 		stroke: var(--c);
+	}
+	.marker {
+		fill: var(--c);
+		stroke: var(--card);
+		stroke-width: 1.5;
 	}
 	text {
 		font-size: 11px;
