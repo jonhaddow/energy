@@ -1,7 +1,7 @@
 // Daily temperatures from Open-Meteo (free, no key), so gas use can allow for
 // the weather. Docs: https://open-meteo.com/en/docs
 import { eq, max, min, sql } from 'drizzle-orm';
-import { location, monthHistory, reading, weatherDay } from './db/schema.ts';
+import { location, monthHistory, weatherDay } from './db/schema.ts';
 import { addDays } from '../dates.ts';
 import type { DB } from './db/index.ts';
 
@@ -80,12 +80,13 @@ export async function syncWeather(db: DB, today: string) {
 	const [{ latest }] = await db.select({ latest: max(weatherDay.day) }).from(weatherDay);
 	if (latest && latest >= yesterday) return;
 
-	let from = latest ? addDays(latest, 1) : await firstGasDay(db);
+	const from = latest ? addDays(latest, 1) : await firstGasDay(db);
 	if (!from) return;
 	const recent = addDays(today, -RECENT_DAYS);
-	const days = from < recent ? await dailyMeans(loc, from, yesterday, true) : [];
-	if (from < recent) from = recent;
-	days.push(...(await dailyMeans(loc, from, yesterday, false)));
+	const days = [
+		...(from < recent ? await dailyMeans(loc, from, yesterday, true) : []),
+		...(await dailyMeans(loc, from < recent ? recent : from, yesterday, false))
+	];
 
 	// D1 takes at most 100 bound values per query: 2 columns, so 50 rows.
 	const inserts = [];
@@ -99,20 +100,13 @@ export async function syncWeather(db: DB, today: string) {
 	if (inserts.length) await db.batch(inserts as [(typeof inserts)[0], ...typeof inserts]);
 }
 
-/** The first day of the gas data, sheet or meter. */
+/** The first day of the gas history (the sheet's, which starts before the meter's). */
 async function firstGasDay(db: DB) {
-	const [[history], [meter]] = await Promise.all([
-		db
-			.select({ month: min(monthHistory.month) })
-			.from(monthHistory)
-			.where(eq(monthHistory.fuel, 'gas')),
-		db
-			.select({ day: min(reading.day) })
-			.from(reading)
-			.where(eq(reading.fuel, 'gas'))
-	]);
-	const days = [history.month && `${history.month}-01`, meter.day].filter((d) => d !== null);
-	return days.sort()[0] ?? null;
+	const [{ month }] = await db
+		.select({ month: min(monthHistory.month) })
+		.from(monthHistory)
+		.where(eq(monthHistory.fuel, 'gas'));
+	return month && `${month}-01`;
 }
 
 /** Heating degree days a month, for months with a temperature every day. */
