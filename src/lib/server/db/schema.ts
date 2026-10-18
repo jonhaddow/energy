@@ -89,3 +89,19 @@ export const tariff = sqliteTable(
 	},
 	(t) => [primaryKey({ columns: [t.fuel, t.from] })]
 );
+
+/** Where the house is (one row), for the weather. Set in Settings. */
+export const location = sqliteTable('location', {
+	id: integer('id').primaryKey(),
+	/** As found by Open-Meteo's geocoding, e.g. "Swansea, Wales". */
+	name: text('name').notNull(),
+	latitude: real('latitude').notNull(),
+	longitude: real('longitude').notNull()
+});
+
+/** Each UK day's mean temperature at the location (Open-Meteo), for heating degree days. */
+export const weatherDay = sqliteTable('weather_day', {
+	/** YYYY-MM-DD */
+	day: text('day').primaryKey(),
+	meanC: real('mean_c').notNull()
+});

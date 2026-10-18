@@ -91,6 +91,18 @@
 						{/each}
 					</ul>
 				{/if}
+				{#if data.weather}
+					{@const w = data.weather}
+					<p class="adjusted">
+						Allowing for the weather:
+						<span class={w.change < 0 ? 'good' : 'over'}
+							>{formatPercent(w.change)} {w.change < 0 ? 'less' : 'more'} gas</span
+						>
+						<span class="muted small"
+							>(it was {formatPercent(w.colder)} {w.colder < 0 ? 'warmer' : 'colder'})</span
+						>
+					</p>
+				{/if}
 				{#if data.fixedPence !== null}
 					<p class="fixed muted small">
 						Standing charges: {formatAmount(data.fixedPence / 100, 'gbp')} a year, before using anything
@@ -239,6 +251,7 @@
 		display: flex;
 		justify-content: space-between;
 	}
+	.adjusted,
 	.fixed {
 		margin-top: 10px;
 		padding-top: 10px;

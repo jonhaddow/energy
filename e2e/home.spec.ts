@@ -13,6 +13,9 @@ test('switches to gas', async ({ page }) => {
 	await open(page, '/');
 	await page.getByRole('link', { name: 'Gas' }).click();
 	await expect(page.getByText('10% more than a year before')).toBeVisible();
+	// But January was 20% colder.
+	await expect(page.getByText('Allowing for the weather: 8% less gas')).toBeVisible();
+	await expect(page.getByText('(it was 20% colder)')).toBeVisible();
 });
 
 test('shows pounds, and both fuels together', async ({ page }) => {

@@ -81,6 +81,20 @@
 		<button class="btn primary">Save</button>
 	</form>
 
+	<form class="card place" method="POST" action="?/location" use:enhance>
+		<h2>Location</h2>
+		<p class="muted small">
+			For the weather, so gas use can allow for a colder or warmer year.
+			{#if data.location}Now: {data.location.name}.{/if}
+		</p>
+		{#if form?.placeError}<p class="error" role="alert">{form.placeError}</p>{/if}
+		<label class="field">
+			Town
+			<input name="place" value={data.location?.name.split(',')[0] ?? ''} required />
+		</label>
+		<button class="btn">Save location</button>
+	</form>
+
 	<form class="out" method="POST" action="/logout">
 		<button class="signout">Sign out</button>
 	</form>
@@ -100,8 +114,9 @@
 			grid-template-areas:
 				'top top'
 				'prices add'
+				'place add'
 				'out add';
-			grid-template-rows: auto auto 1fr;
+			grid-template-rows: auto auto auto 1fr;
 			align-items: start;
 		}
 		header {
@@ -112,6 +127,9 @@
 		}
 		.add {
 			grid-area: add;
+		}
+		.place {
+			grid-area: place;
 		}
 		.out {
 			grid-area: out;
