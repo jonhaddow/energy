@@ -12,10 +12,18 @@
 	beforeNavigate(({ willUnload, to }) => {
 		if (updated.current && !willUnload && to?.url) location.href = to.url.href;
 	});
+
+	// Coming back to the app from the background: if a new version was deployed
+	// meanwhile, load it straight away.
+	async function reloadIfUpdated() {
+		if (document.visibilityState === 'visible' && (await updated.check())) location.reload();
+	}
 </script>
 
 <svelte:head>
 	<link rel="preload" href={font} as="font" type="font/woff2" crossorigin="anonymous" />
 </svelte:head>
+
+<svelte:document onvisibilitychange={reloadIfUpdated} />
 
 {@render children()}
