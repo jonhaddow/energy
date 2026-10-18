@@ -213,17 +213,3 @@ export function weatherAdjusted(months: MonthUse[], weather: MonthWeather[]) {
 		colder: degreeDays / beforeDegreeDays - 1
 	};
 }
-
-/** The last 12 whole months' use; null unless all 12 have data. */
-export function lastTwelveMonths(months: MonthUse[]) {
-	const latest = months.findLast((m) => !m.partial);
-	if (!latest) return null;
-	const byMonth = new Map(months.map((m) => [m.month, m]));
-	let kwh = 0;
-	for (let back = 0; back < 12; back++) {
-		const m = byMonth.get(addMonths(latest.month, -back));
-		if (!m || m.partial) return null;
-		kwh += m.kwh;
-	}
-	return { from: addMonths(latest.month, -11), to: latest.month, kwh };
-}

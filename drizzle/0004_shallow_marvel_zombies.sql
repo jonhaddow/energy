@@ -1,0 +1,1 @@
+DROP TABLE `typical_use`;
