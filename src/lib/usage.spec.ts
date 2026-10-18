@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { addMonths, byYear, combined, compare, monthCost, monthlyUse } from './usage.ts';
+import {
+	addMonths,
+	byYear,
+	combined,
+	compare,
+	monthCost,
+	monthlyUse,
+	priceChanges,
+	standingPerYear
+} from './usage.ts';
 
 describe('monthlyUse', () => {
 	const history = [
@@ -161,5 +170,31 @@ describe('combined', () => {
 				[month('2025-01', 2000, null, true), month('2025-02', 1, 1)]
 			)
 		).toEqual([month('2025-01', 2300, null, true)]);
+	});
+});
+
+describe('standingPerYear', () => {
+	const prices = [
+		{ from: '2025-01-01', unitPence: 20, standingPence: 50 },
+		{ from: '2025-06-16', unitPence: 30, standingPence: 60 }
+	];
+
+	it('is a year of the standing charge in force that day', () => {
+		expect(standingPerYear(prices, '2025-06-15')).toBe(50 * 365);
+		expect(standingPerYear(prices, '2026-01-01')).toBe(60 * 365);
+		expect(standingPerYear(prices, '2024-12-31')).toBeNull();
+	});
+});
+
+describe('priceChanges', () => {
+	const price = (from: string) => ({ from, unitPence: 1, standingPence: 1 });
+
+	it('lists the days new prices start, across fuels', () => {
+		expect(
+			priceChanges(
+				[price('2025-01-01'), price('2026-04-01')],
+				[price('2024-07-01'), price('2025-01-01'), price('2026-04-01')]
+			)
+		).toEqual(['2025-01-01', '2026-04-01']);
 	});
 });

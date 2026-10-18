@@ -166,3 +166,13 @@ export function compare(months: MonthUse[], unit: Unit) {
 				: null
 	};
 }
+
+/** What a fuel's standing charge comes to in a year at the prices on `day`, in pence; null without a price. */
+export function standingPerYear(prices: Price[], day: string) {
+	const p = prices.findLast((p) => p.from <= day);
+	return p ? p.standingPence * 365 : null;
+}
+
+/** The days new prices start (YYYY-MM-DD), oldest first: each fuel's first prices aren't a change. */
+export const priceChanges = (...fuels: Price[][]) =>
+	[...new Set(fuels.flatMap((prices) => prices.slice(1).map((p) => p.from)))].sort();

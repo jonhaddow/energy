@@ -1,5 +1,7 @@
 import { fuelMonths, syncInfo } from '#lib/server/usage.ts';
-import { combined, type Unit } from '#lib/usage.ts';
+import { FUELS } from '#lib/server/db/schema.ts';
+import { allTariffs } from '#lib/server/tariffs.ts';
+import { combined, priceChanges, standingPerYear, type Unit } from '#lib/usage.ts';
 import { dayOf } from '#lib/dates.ts';
 import type { PageServerLoad } from './$types';
 
@@ -12,7 +14,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 	const unit: Unit = url.searchParams.get('unit') === 'gbp' ? 'gbp' : 'kwh';
 	const today = dayOf(Math.floor(Date.now() / 1000));
 	const thisMonth = today.slice(0, 7);
-	const [months, sync] = await Promise.all([
+	const [months, sync, tariffs] = await Promise.all([
 		fuel === 'both'
 			? Promise.all([
 					fuelMonths(locals.db, 'electricity', thisMonth),
@@ -20,7 +22,22 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 				]).then(([e, g]) => combined(e, g))
 			: fuelMonths(locals.db, fuel, thisMonth),
 		// Both fuels sync together, so electricity speaks for both.
-		syncInfo(locals.db, fuel === 'both' ? 'electricity' : fuel)
+		syncInfo(locals.db, fuel === 'both' ? 'electricity' : fuel),
+		allTariffs(locals.db)
 	]);
-	return { fuel, unit, months, sync, today };
+	// Oldest first, for each fuel in view.
+	const prices = (fuel === 'both' ? FUELS : [fuel]).map((f) =>
+		tariffs.filter((t) => t.fuel === f).toReversed()
+	);
+	const standing = prices.map((p) => standingPerYear(p, today));
+	return {
+		fuel,
+		unit,
+		months,
+		sync,
+		today,
+		/** Standing charges a year at today's prices, in pence. */
+		fixedPence: standing.includes(null) ? null : (standing as number[]).reduce((a, b) => a + b),
+		priceChanges: priceChanges(...prices)
+	};
 };
