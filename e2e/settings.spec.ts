@@ -7,8 +7,14 @@ test('adds and removes prices', async ({ page }) => {
 	await page.getByLabel('From', { exact: true }).fill('2026-10-01');
 	await page.getByLabel('Unit rate').fill('6.12');
 	await page.getByLabel('Standing charge').fill('31.4');
-	await page.getByRole('button', { name: 'Save' }).click();
+	await page.getByRole('button', { name: 'Save', exact: true }).click();
 	await expect(page.getByText('6.12p/kWh · 31.4p/day')).toBeVisible();
 	await page.getByRole('button', { name: 'Remove Gas from 1 Oct 2026' }).click();
 	await expect(page.getByText('6.12p/kWh')).toBeHidden();
+});
+
+test('shows the location', async ({ page }) => {
+	await open(page, '/settings');
+	await expect(page.getByText('Now: Swansea, Wales.')).toBeVisible();
+	await expect(page.getByLabel('Town')).toHaveValue('Swansea');
 });

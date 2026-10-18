@@ -159,6 +159,8 @@ export function compare(months: MonthUse[], unit: Unit) {
 		value,
 		beforeValue,
 		change: value / beforeValue - 1,
+		/** The months counted (YYYY-MM), each against the same month a year before. */
+		months: counted,
 		/** In pounds, how much of the change came from using more or less, and how much from prices. */
 		why:
 			unit === 'gbp' && atLastYearPrices !== null
@@ -181,3 +183,33 @@ export function standingPerYear(fuels: Price[][], day: string) {
 /** The days new prices start (YYYY-MM-DD), oldest first: each fuel's first prices aren't a change. */
 export const priceChanges = (...fuels: Price[][]) =>
 	[...new Set(fuels.flatMap((prices) => prices.slice(1).map((p) => p.from)))].sort();
+
+/** A month's heating degree days, and how many days have a temperature. */
+export type MonthWeather = { month: string; degreeDays: number; days: number };
+
+/**
+ * The headline's gas comparison allowing for the weather: gas per heating
+ * degree day against the year before, and how much colder it was. Null
+ * without a temperature for every day of those months.
+ */
+export function weatherAdjusted(months: MonthUse[], weather: MonthWeather[]) {
+	const vs = compare(months, 'kwh');
+	if (!vs) return null;
+	const byMonth = new Map(
+		weather.filter((w) => w.days === daysInMonth(w.month)).map((w) => [w.month, w.degreeDays])
+	);
+	let degreeDays = 0;
+	let beforeDegreeDays = 0;
+	for (const month of vs.months) {
+		const dd = byMonth.get(month);
+		const before = byMonth.get(addMonths(month, -12));
+		if (dd === undefined || before === undefined) return null;
+		degreeDays += dd;
+		beforeDegreeDays += before;
+	}
+	if (!degreeDays || !beforeDegreeDays) return null;
+	return {
+		change: vs.value / degreeDays / (vs.beforeValue / beforeDegreeDays) - 1,
+		colder: degreeDays / beforeDegreeDays - 1
+	};
+}

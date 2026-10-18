@@ -37,3 +37,7 @@ export const daysInMonth = (month: string) =>
 
 /** "16 Oct 2026" for 2026-10-16. */
 export const formatDate = (day: string) => dateLabel.format(new Date(`${day}T12:00:00Z`));
+
+/** YYYY-MM-DD, a number of days on (or back). */
+export const addDays = (day: string, by: number) =>
+	new Date(Date.parse(`${day}T00:00:00Z`) + by * 86_400_000).toISOString().slice(0, 10);

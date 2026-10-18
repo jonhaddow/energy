@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { daysInMonth } from './dates.ts';
 import {
 	addMonths,
 	byYear,
@@ -7,7 +8,8 @@ import {
 	monthCost,
 	monthlyUse,
 	priceChanges,
-	standingPerYear
+	standingPerYear,
+	weatherAdjusted
 } from './usage.ts';
 
 describe('monthlyUse', () => {
@@ -85,6 +87,7 @@ describe('compare', () => {
 			value: 1080,
 			beforeValue: 1200,
 			change: expect.closeTo(-0.1),
+			months: months('2025-01', Array(12).fill(0)).map((m) => m.month),
 			why: null
 		});
 	});
@@ -197,5 +200,34 @@ describe('priceChanges', () => {
 				[price('2024-07-01'), price('2025-01-01'), price('2026-04-01')]
 			)
 		).toEqual(['2025-01-01', '2026-04-01']);
+	});
+});
+
+describe('weatherAdjusted', () => {
+	const prices = [{ from: '2024-01-01', unitPence: 10, standingPence: 0 }];
+	const history = [
+		...Array.from({ length: 12 }, (_, i) => ({ month: addMonths('2024-01', i), kwh: 1000 })),
+		...Array.from({ length: 12 }, (_, i) => ({ month: addMonths('2025-01', i), kwh: 1100 }))
+	];
+	const use = monthlyUse([], history, '2026-01', prices);
+	/** A year of months from `start`; `missing` days without a temperature. */
+	const weather = (start: string, degreeDays: number, missing = 0) =>
+		Array.from({ length: 12 }, (_, i) => {
+			const month = addMonths(start, i);
+			return { month, degreeDays, days: daysInMonth(month) - missing };
+		});
+
+	it('compares gas per degree day, so a colder year needs more', () => {
+		// 10% more gas in a 20% colder year: 8% less per degree day.
+		expect(weatherAdjusted(use, [...weather('2024-01', 100), ...weather('2025-01', 120)])).toEqual({
+			change: expect.closeTo(1.1 / 1.2 - 1),
+			colder: expect.closeTo(0.2)
+		});
+	});
+
+	it('needs a temperature for every day', () => {
+		expect(
+			weatherAdjusted(use, [...weather('2024-01', 100), ...weather('2025-01', 120, 1)])
+		).toBeNull();
 	});
 });
