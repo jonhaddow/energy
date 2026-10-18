@@ -18,15 +18,3 @@ test('shows the location', async ({ page }) => {
 	await expect(page.getByText('Now: Swansea, Wales.')).toBeVisible();
 	await expect(page.getByLabel('Town')).toHaveValue('Swansea');
 });
-
-test('edits the other homes figures', async ({ page }) => {
-	await open(page, '/settings');
-	const gas = page.getByRole('group', { name: 'Gas' });
-	await gas.getByLabel('High').fill('9000');
-	await page.getByRole('button', { name: 'Save figures' }).click();
-	await expect(page.getByRole('alert')).toHaveText('Whole kWh, low to high');
-	await gas.getByLabel('High').fill('15000');
-	await page.getByRole('button', { name: 'Save figures' }).click();
-	await page.reload();
-	await expect(page.getByRole('group', { name: 'Gas' }).getByLabel('High')).toHaveValue('15000');
-});

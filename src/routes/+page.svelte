@@ -1,5 +1,4 @@
 <script lang="ts">
-	import TypicalHomes from '#lib/components/TypicalHomes.svelte';
 	import YearChart from '#lib/components/YearChart.svelte';
 	import { MONTHS, formatDay, formatMonths } from '#lib/dates.ts';
 	import { formatAmount, formatPercent } from '#lib/format.ts';
@@ -112,14 +111,6 @@
 			</section>
 		{/if}
 
-		{#if data.typical}
-			<section class="card typical">
-				<h2>Against other homes</h2>
-				<TypicalHomes {...data.typical} />
-				<p class="muted small">Ofgem’s yearly figures for UK homes, set in Settings.</p>
-			</section>
-		{/if}
-
 		<section class="card chart">
 			<h2>Month by month</h2>
 			<YearChart {years} {selected} unit={data.unit} priceChanges={data.priceChanges} />
@@ -187,10 +178,9 @@
 			grid-template-areas:
 				'top top'
 				'headline chart'
-				'typical chart'
 				'table chart'
 				'foot foot';
-			grid-template-rows: auto auto auto 1fr auto;
+			grid-template-rows: auto auto 1fr auto;
 			align-items: start;
 		}
 		header {
@@ -207,9 +197,6 @@
 		}
 		.headline {
 			grid-area: headline;
-		}
-		.typical {
-			grid-area: typical;
 		}
 		.chart {
 			grid-area: chart;
@@ -276,12 +263,6 @@
 	}
 	.over {
 		font-weight: 600;
-	}
-	.typical h2 {
-		margin-bottom: 10px;
-	}
-	.typical > .small {
-		margin-top: 10px;
 	}
 	.chart h2 {
 		margin-bottom: 10px;

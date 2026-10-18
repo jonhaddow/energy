@@ -95,36 +95,6 @@
 		<button class="btn">Save location</button>
 	</form>
 
-	<form class="card homes" method="POST" action="?/typical" use:enhance>
-		<h2>Other homes</h2>
-		<p class="muted small">
-			Ofgem’s yearly use for low, typical and high UK homes (kWh), to compare with ours. These are
-			its figures from July 2026.
-		</p>
-		{#if form?.typicalError}<p class="error" role="alert">{form.typicalError}</p>{/if}
-		{#each fuels as f (f.value)}
-			{@const t = data.typical.find((t) => t.fuel === f.value)}
-			<fieldset>
-				<legend>{f.label}</legend>
-				{#each [['low', 'Low'], ['medium', 'Typical'], ['high', 'High']] as const as [key, label] (key)}
-					<label class="field">
-						{label}
-						<input
-							type="number"
-							name="{f.value}-{key}"
-							value={t?.[key]}
-							min="1"
-							step="1"
-							inputmode="numeric"
-							required
-						/>
-					</label>
-				{/each}
-			</fieldset>
-		{/each}
-		<button class="btn">Save figures</button>
-	</form>
-
 	<form class="out" method="POST" action="/logout">
 		<button class="signout">Sign out</button>
 	</form>
@@ -136,20 +106,33 @@
 		flex-direction: column;
 		gap: 20px;
 	}
-	/* Laptops: two columns, filled in order (prices and the form on the left). */
+	/* Laptops: the prices and the form side by side. */
 	@media (min-width: 960px) {
 		main {
-			display: block;
-			columns: 2;
-			column-gap: 32px;
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+			grid-template-areas:
+				'top top'
+				'prices add'
+				'place add'
+				'out add';
+			grid-template-rows: auto auto auto 1fr;
+			align-items: start;
 		}
 		header {
-			column-span: all;
-			margin-bottom: 20px;
+			grid-area: top;
 		}
-		main > :not(header) {
-			break-inside: avoid;
-			margin-bottom: 20px;
+		.prices {
+			grid-area: prices;
+		}
+		.add {
+			grid-area: add;
+		}
+		.place {
+			grid-area: place;
+		}
+		.out {
+			grid-area: out;
 		}
 	}
 	.card {
@@ -194,18 +177,6 @@
 	}
 	.add {
 		gap: 14px;
-	}
-	fieldset {
-		display: grid;
-		grid-template-columns: repeat(3, minmax(0, 1fr));
-		gap: 8px;
-		margin: 0;
-		padding: 0;
-		border: 0;
-	}
-	legend {
-		margin-bottom: 6px;
-		font-weight: 600;
 	}
 	.signout {
 		width: 100%;

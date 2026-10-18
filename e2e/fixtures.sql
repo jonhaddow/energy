@@ -14,7 +14,3 @@ INSERT INTO weather_day (day, mean_c)
 	WITH RECURSIVE d(n) AS (SELECT 1 UNION ALL SELECT n + 1 FROM d WHERE n < 31)
 	SELECT printf('2025-01-%02d', n), 5.5 FROM d
 	UNION ALL SELECT printf('2026-01-%02d', n), 3.5 FROM d;
--- The rest of 2025's electricity, for a whole 12 months (Apr 2025 – Mar 2026: 1,990 kWh).
-INSERT INTO month_history (fuel, month, kwh, cost_pence)
-	WITH RECURSIVE m(n) AS (SELECT 4 UNION ALL SELECT n + 1 FROM m WHERE n < 12)
-	SELECT 'electricity', printf('2025-%02d', n), 150, NULL FROM m;
