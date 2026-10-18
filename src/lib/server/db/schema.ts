@@ -105,3 +105,14 @@ export const weatherDay = sqliteTable('weather_day', {
 	day: text('day').primaryKey(),
 	meanC: real('mean_c').notNull()
 });
+
+/**
+ * Ofgem's typical household use a year (TDCVs), low, medium and high, in kWh.
+ * Seeded with the July 2026 figures; editable in Settings when Ofgem revises them.
+ */
+export const typicalUse = sqliteTable('typical_use', {
+	fuel: text('fuel', { enum: FUELS }).primaryKey(),
+	low: integer('low').notNull(),
+	medium: integer('medium').notNull(),
+	high: integer('high').notNull()
+});

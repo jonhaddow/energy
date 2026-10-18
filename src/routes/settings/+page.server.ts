@@ -1,12 +1,17 @@
 import { fail } from '@sveltejs/kit';
 import type { Fuel } from '#lib/server/db/schema.ts';
 import { allTariffs, readTariffForm, removeTariff, saveTariff } from '#lib/server/tariffs.ts';
+import { allTypical, readTypicalForm, saveTypical } from '#lib/server/typical.ts';
 import { findPlace, getLocation, saveLocation } from '#lib/server/weather.ts';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
-	const [tariffs, location] = await Promise.all([allTariffs(locals.db), getLocation(locals.db)]);
-	return { tariffs, location };
+	const [tariffs, location, typical] = await Promise.all([
+		allTariffs(locals.db),
+		getLocation(locals.db),
+		allTypical(locals.db)
+	]);
+	return { tariffs, location, typical };
 };
 
 export const actions: Actions = {
@@ -21,6 +26,11 @@ export const actions: Actions = {
 		const place = await findPlace(name);
 		if (!place) return fail(400, { placeError: `Couldn’t find ${name}` });
 		await saveLocation(locals.db, place);
+	},
+	typical: async ({ request, locals }) => {
+		const rows = readTypicalForm(await request.formData());
+		if (!rows) return fail(400, { typicalError: 'Whole kWh, low to high' });
+		await saveTypical(locals.db, rows);
 	},
 	remove: async ({ request, locals }) => {
 		const form = await request.formData();

@@ -10,7 +10,7 @@ Household gas and electricity use, compared year on year. A PWA at https://energ
 - `src/lib/server/usage.ts`: the SQL behind it
 - `src/lib/server/weather.ts`: Open-Meteo: the location (geocoding), daily temperatures, heating degree days a month
 - `src/lib/components/YearChart.svelte`: month-by-month lines, one per year
-- `src/routes/+page.svelte`: the main page (`?fuel=gas|both&unit=gbp`); `/settings`: prices (`src/lib/server/tariffs.ts`), location and sign out; `/sync`: called by the cron (`worker/entry.js`) with `SYNC_SECRET`
+- `src/routes/+page.svelte`: the main page (`?fuel=gas|both&unit=gbp`); `/settings`: prices (`src/lib/server/tariffs.ts`), location, other homes' figures (`src/lib/server/typical.ts`) and sign out; `/sync`: called by the cron (`worker/entry.js`) with `SYNC_SECRET`
 - `scripts/history.ts`: sheet CSV (`private/`, not in git) to SQL for `month_history`
 - Schema: `src/lib/server/db/schema.ts`
 

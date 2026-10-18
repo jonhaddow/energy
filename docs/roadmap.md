@@ -10,6 +10,7 @@ The aim: not just what we used, but whether it's more or less than it should be,
 - kWh or £ on every view, and a Both tab (electricity and gas together).
 - Why the bill changed: the year-on-year £ change split into using less or more, and prices.
 - Weather-adjusted gas: the 12-month comparison per heating degree day (Open-Meteo temperatures for the town set in Settings).
+- Against other homes: the last 12 months against Ofgem's low, typical and high homes (one fuel at a time; figures in Settings).
 - The fixed part: standing charges a year at today's prices (in £). Price changes marked on the chart (in £).
 
 ## Phase 1: the basics with meter data
@@ -34,4 +35,3 @@ The aim: not just what we used, but whether it's more or less than it should be,
 ## Phase 4: nice to have
 
 - **Daily heatmap**: a year of days at a glance.
-- **Typical-home comparison**: against Ofgem's low, medium and high household figures.
