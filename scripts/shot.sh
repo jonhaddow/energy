@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Screenshots a page of the local app, signed in as the e2e user, on the e2e database.
 # Usage: scripts/shot.sh /transactions [out.png] [shot flags: --desktop --full --el <css>]
-# Starts the e2e dev server on port 5180 if it isn't running (stop: scripts/shot.sh --stop).
+# Starts the e2e dev server on port 5181 if it isn't running (stop: scripts/shot.sh --stop).
 set -euo pipefail
 cd "$(dirname "$0")/.."
-PORT=5180
+PORT=5181
 if [ "${1:-}" = "--stop" ]; then pkill -f "vite dev --port $PORT" || true; exit 0; fi
 if ! curl -s -o /dev/null "http://localhost:$PORT/login"; then
 	./e2e/reset-db.sh

@@ -5,10 +5,13 @@ import {
 	byYear,
 	combined,
 	compare,
+	latestWhole,
 	monthCost,
 	monthlyUse,
 	priceChanges,
 	standingPerYear,
+	twelveMonthsTo,
+	yearCost,
 	weatherAdjusted
 } from './usage.ts';
 
@@ -229,5 +232,34 @@ describe('weatherAdjusted', () => {
 		expect(
 			weatherAdjusted(use, [...weather('2024-01', 100), ...weather('2025-01', 120, 1)])
 		).toBeNull();
+	});
+});
+
+describe('twelveMonthsTo', () => {
+	const prices = [{ from: '2024-01-01', unitPence: 10, standingPence: 0 }];
+	const history = (n: number) =>
+		Array.from({ length: n }, (_, i) => ({ month: addMonths('2025-01', i), kwh: 100 }));
+
+	it('adds up the 12 months to a month, if all are whole', () => {
+		const meter = [{ month: '2026-02', wh: 5000, halfHours: 48 }];
+		const use = monthlyUse(meter, history(13), '2026-02', prices);
+		expect(latestWhole(use)).toBe('2026-01');
+		expect(twelveMonthsTo(use, '2026-01')).toBe(1200);
+		expect(twelveMonthsTo(use, '2026-02')).toBeNull();
+		expect(twelveMonthsTo(monthlyUse([], history(11), '2026-02', prices), '2025-11')).toBeNull();
+	});
+});
+
+describe('yearCost', () => {
+	it('prices a year of use, with a year of standing charges', () => {
+		const rates = {
+			electricity: { unitPence: 25, standingPence: 50 },
+			gas: { unitPence: 6, standingPence: 30 }
+		};
+		expect(yearCost({ electricity: 2000, gas: 10000 }, rates)).toEqual({
+			use: 2000 * 25 + 10000 * 6,
+			standing: 365 * 80,
+			total: 2000 * 25 + 10000 * 6 + 365 * 80
+		});
 	});
 });
