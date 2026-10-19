@@ -113,7 +113,7 @@ export function byYear(months: MonthUse[]): Year[] {
 	const years = new Map<number, Year>();
 	for (const m of months) {
 		const y = Number(m.month.slice(0, 4));
-		if (!years.has(y)) years.set(y, { year: y, months: Array(12).fill(null) });
+		if (!years.has(y)) years.set(y, { year: y, months: new Array<MonthUse | null>(12).fill(null) });
 		years.get(y)!.months[Number(m.month.slice(5, 7)) - 1] = m;
 	}
 	return [...years.values()].sort((a, b) => b.year - a.year);

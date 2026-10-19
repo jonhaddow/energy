@@ -79,8 +79,8 @@ describe('compare', () => {
 
 	it('takes the last 12 whole months, across the new year', () => {
 		const history = [
-			...months('2024-01', Array(12).fill(100)),
-			...months('2025-01', Array(12).fill(90))
+			...months('2024-01', new Array<number>(12).fill(100)),
+			...months('2025-01', new Array<number>(12).fill(90))
 		];
 		// January 2026 is still going: 2025 against 2024.
 		const meter = [{ month: '2026-01', wh: 50_000, halfHours: 5 * 48 }];
@@ -90,13 +90,16 @@ describe('compare', () => {
 			value: 1080,
 			beforeValue: 1200,
 			change: expect.closeTo(-0.1),
-			months: months('2025-01', Array(12).fill(0)).map((m) => m.month),
+			months: months('2025-01', new Array<number>(12).fill(0)).map((m) => m.month),
 			why: null
 		});
 	});
 
 	it('rolls on a month at a time', () => {
-		const history = [...months('2024-01', Array(14).fill(100)), ...months('2025-03', [80, 80])];
+		const history = [
+			...months('2024-01', new Array<number>(14).fill(100)),
+			...months('2025-03', [80, 80])
+		];
 		// The 12 months to Apr 2025 only have a year before for Jan–Apr.
 		const result = compare(monthlyUse([], history, '2025-05', prices), 'kwh')!;
 		expect([result.from, result.to, result.value, result.beforeValue]).toEqual([

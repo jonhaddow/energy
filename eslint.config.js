@@ -13,6 +13,30 @@ export default defineConfig(
 	{ ignores: ['worker-configuration.d.ts'] },
 	js.configs.recommended,
 	ts.configs.recommended,
+	// Type-aware rules for app code: a missing await, and untyped (any) values
+	// leaking in. Routes type their props (PageProps) so ESLint can see them. The
+	// full recommendedTypeChecked preset was tried and only added noise here.
+	{
+		files: ['src/**/*.ts', 'src/**/*.svelte'],
+		languageOptions: {
+			parserOptions: { projectService: true, tsconfigRootDir: import.meta.dirname }
+		},
+		rules: {
+			'@typescript-eslint/await-thenable': 'error',
+			'@typescript-eslint/no-floating-promises': 'error',
+			'@typescript-eslint/no-misused-promises': ['error', { checksVoidReturn: false }],
+			'@typescript-eslint/no-unsafe-argument': 'error',
+			'@typescript-eslint/no-unsafe-assignment': 'error',
+			'@typescript-eslint/no-unsafe-call': 'error',
+			'@typescript-eslint/no-unsafe-member-access': 'error',
+			'@typescript-eslint/no-unsafe-return': 'error'
+		}
+	},
+	{
+		// Vitest's matchers like expect.closeTo() are typed any.
+		files: ['**/*.spec.ts'],
+		rules: { '@typescript-eslint/no-unsafe-assignment': 'off' }
+	},
 	svelte.configs.recommended,
 	prettier,
 	svelte.configs.prettier,
@@ -28,7 +52,6 @@ export default defineConfig(
 		files: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'],
 		languageOptions: {
 			parserOptions: {
-				projectService: true,
 				extraFileExtensions: ['.svelte'],
 				parser: ts.parser
 			}

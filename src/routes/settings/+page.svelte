@@ -1,8 +1,9 @@
 <script lang="ts">
+	import type { PageProps } from './$types';
 	import { enhance } from '$app/forms';
 	import { formatDate } from '#lib/dates.ts';
 
-	let { data, form } = $props();
+	let { data, form }: PageProps = $props();
 
 	const fuels = [
 		{ value: 'electricity', label: 'Electricity' },
