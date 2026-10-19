@@ -1,10 +1,11 @@
 <script lang="ts">
+	import type { PageProps } from './$types';
 	import YearChart from '#lib/components/YearChart.svelte';
 	import { formatDay, formatMonths } from '#lib/dates.ts';
 	import { formatAmount, formatPercent } from '#lib/format.ts';
 	import { byYear, compare } from '#lib/usage.ts';
 
-	let { data } = $props();
+	let { data }: PageProps = $props();
 
 	const years = $derived(byYear(data.months));
 	const vsLastYear = $derived(compare(data.months, data.unit));

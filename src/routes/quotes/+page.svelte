@@ -1,9 +1,10 @@
 <script lang="ts">
+	import type { PageProps } from './$types';
 	import { enhance } from '$app/forms';
 	import { formatDate, formatMonths } from '#lib/dates.ts';
 	import { formatAmount, formatKwh } from '#lib/format.ts';
 
-	let { data, form } = $props();
+	let { data, form }: PageProps = $props();
 
 	const pounds = (pence: number) => formatAmount(pence / 100, 'gbp');
 	/** "£120 less" or "£40 more" a year than now. */
