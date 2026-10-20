@@ -8,7 +8,7 @@
 		"binding": "ASSETS",
 		"directory": ".svelte-kit/cloudflare"
 	},
-	// Only served on energy.app.haddow.me (Google sign-in only allows that address).
+	// Only served on energy.app.haddow.me (sign-in sends people back there).
 	"workers_dev": false,
 	"routes": [{ "pattern": "energy.app.haddow.me", "custom_domain": true }],
 	// Keeps request logs and console output (Workers Logs, free tier) for debugging.

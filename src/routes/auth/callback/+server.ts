@@ -1,7 +1,12 @@
 import { redirect } from '@sveltejs/kit';
 import { Google, decodeIdToken } from 'arctic';
 import { env } from 'cloudflare:workers';
-import { createSession, findAllowedUser, setSessionCookie } from '#lib/server/auth.ts';
+import {
+	GOOGLE_REDIRECT_URI,
+	createSession,
+	findAllowedUser,
+	setSessionCookie
+} from '#lib/server/auth.ts';
 import { safeBack } from '#lib/server/forms.ts';
 import type { RequestHandler } from './$types';
 
@@ -33,11 +38,7 @@ export const GET: RequestHandler = async ({ url, cookies, locals }) => {
 
 	let claims: GoogleClaims;
 	try {
-		const google = new Google(
-			env.GOOGLE_CLIENT_ID,
-			env.GOOGLE_CLIENT_SECRET,
-			`${url.origin}/auth/callback`
-		);
+		const google = new Google(env.GOOGLE_CLIENT_ID, env.GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI);
 		const tokens = await google.validateAuthorizationCode(code, verifier);
 		// The ID token came straight from Google's token endpoint over TLS, so its
 		// signature doesn't need re-checking; the claims still do.
