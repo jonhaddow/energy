@@ -127,6 +127,7 @@
 			<p>Not syncing with Bright yet.</p>
 		{/if}
 		<nav class="links">
+			<a class="link" href="/now">Now</a>
 			<a class="link" href="/quotes">Quotes</a>
 			<a class="link" href="/settings">Settings</a>
 		</nav>

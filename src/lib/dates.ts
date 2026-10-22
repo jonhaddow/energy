@@ -41,3 +41,20 @@ export const formatDate = (day: string) => dateLabel.format(new Date(`${day}T12:
 /** YYYY-MM-DD, a number of days on (or back). */
 export const addDays = (day: string, by: number) =>
 	new Date(Date.parse(`${day}T00:00:00Z`) + by * 86_400_000).toISOString().slice(0, 10);
+
+/** 01:00 UTC on the last Sunday of a month (0–11): when the clocks change. */
+function clockChange(year: number, month: number) {
+	const last = new Date(Date.UTC(year, month + 1, 0));
+	return Date.UTC(year, month, last.getUTCDate() - last.getUTCDay(), 1) / 1000;
+}
+
+/**
+ * The UK hour (0–23) of a unix time in seconds. Arithmetic rather than Intl,
+ * which takes ~4 ms for a month of half hours: Workers allow ~10 ms of CPU.
+ */
+export function ukHour(unix: number) {
+	const year = new Date(unix * 1000).getUTCFullYear();
+	const bst = unix >= clockChange(year, 2) && unix < clockChange(year, 9);
+	const local = unix + (bst ? 3600 : 0);
+	return Math.floor((local % 86_400) / 3600);
+}

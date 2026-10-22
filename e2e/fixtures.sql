@@ -20,3 +20,9 @@ INSERT INTO month_history (fuel, month, kwh, cost_pence)
 	WITH RECURSIVE m(n) AS (SELECT 2 UNION ALL SELECT n + 1 FROM m WHERE n < 12)
 	SELECT 'electricity', printf('2025-%02d', n), 150, NULL FROM m WHERE n >= 4
 	UNION ALL SELECT 'gas', printf('2025-%02d', n), 500, NULL FROM m;
+-- A week and a day of electricity readings, 8–15 Jan 2026 (GMT, so UTC days):
+-- 0.25 kWh a half hour, and 15 Jan has 0.75 from 18:00 to 21:00.
+INSERT INTO reading (fuel, start, day, wh)
+	WITH RECURSIVE h(n) AS (SELECT 0 UNION ALL SELECT n + 1 FROM h WHERE n < 8 * 48 - 1)
+	SELECT 'electricity', 1767830400 + n * 1800, date(1767830400 + n * 1800, 'unixepoch'),
+		CASE WHEN n >= 7 * 48 + 36 AND n < 7 * 48 + 42 THEN 750 ELSE 250 END FROM h;
