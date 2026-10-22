@@ -1,7 +1,7 @@
 import { halfHours, readingRange } from '#lib/server/day.ts';
 import { allTariffs } from '#lib/server/tariffs.ts';
 import { addDays, dayOf, ukHour } from '#lib/dates.ts';
-import { dayUse, total } from '#lib/day.ts';
+import { dayUse } from '#lib/day.ts';
 import type { PageServerLoad } from './$types';
 
 /** The typical day: the whole days in the four weeks before. */
@@ -24,8 +24,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 		halfHours(locals.db, fuel, addDays(day, -TYPICAL_DAYS), day),
 		allTariffs(locals.db)
 	]);
-	const { hours, typical, typicalDays } = dayUse(rows, day);
-	const kwh = total(hours);
+	const use = dayUse(rows, day);
 	// Newest first, so the first that's started is the day's.
 	const price = tariffs.find((t) => t.fuel === fuel && t.from <= day);
 	return {
@@ -37,12 +36,8 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 			upTo: day === last && day !== lastWhole ? ukHour(range.last) : null,
 			before: day > first ? addDays(day, -1) : null,
 			after: day < last ? addDays(day, 1) : null,
-			hours,
-			kwh,
-			typical,
-			typicalKwh: typical && total(typical),
-			typicalDays,
-			pence: price ? kwh * price.unitPence + price.standingPence : null,
+			...use,
+			pence: price ? use.kwh * price.unitPence + price.standingPence : null,
 			standingPence: price?.standingPence ?? null
 		}
 	};

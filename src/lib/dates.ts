@@ -42,27 +42,19 @@ export const formatDate = (day: string) => dateLabel.format(new Date(`${day}T12:
 export const addDays = (day: string, by: number) =>
 	new Date(Date.parse(`${day}T00:00:00Z`) + by * 86_400_000).toISOString().slice(0, 10);
 
-/** BST's start and end (unix seconds), by year: 01:00 UTC on the last Sundays of March and October. */
-const bstCache = new Map<number, [number, number]>();
-function bst(year: number) {
-	let range = bstCache.get(year);
-	if (!range) {
-		const lastSunday = (month: number) => {
-			const last = new Date(Date.UTC(year, month + 1, 0));
-			return Date.UTC(year, month, last.getUTCDate() - last.getUTCDay(), 1) / 1000;
-		};
-		range = [lastSunday(2), lastSunday(9)];
-		bstCache.set(year, range);
-	}
-	return range;
+/** 01:00 UTC on the last Sunday of a month (0–11): when the clocks change. */
+function clockChange(year: number, month: number) {
+	const last = new Date(Date.UTC(year, month + 1, 0));
+	return Date.UTC(year, month, last.getUTCDate() - last.getUTCDay(), 1) / 1000;
 }
 
 /**
- * The UK hour (0–23) of a unix time in seconds. Arithmetic rather than Intl:
- * it runs for every half hour of a month, within Workers' CPU limit.
+ * The UK hour (0–23) of a unix time in seconds. Arithmetic rather than Intl,
+ * which takes ~4 ms for a month of half hours: Workers allow ~10 ms of CPU.
  */
 export function ukHour(unix: number) {
-	const [start, end] = bst(new Date(unix * 1000).getUTCFullYear());
-	const local = unix + (unix >= start && unix < end ? 3600 : 0);
+	const year = new Date(unix * 1000).getUTCFullYear();
+	const bst = unix >= clockChange(year, 2) && unix < clockChange(year, 9);
+	const local = unix + (bst ? 3600 : 0);
 	return Math.floor((local % 86_400) / 3600);
 }

@@ -6,6 +6,8 @@ export type HalfHour = { start: number; day: string; wh: number };
 /** Readings that make a day whole: 48 half hours, give or take a clock change. */
 const WHOLE_DAY = 46;
 
+const total = (hours: number[]) => hours.reduce((a, b) => a + b, 0);
+
 /** kWh in each UK hour (0–23) of the half hours given. */
 function byHour(rows: HalfHour[]) {
 	const hours = new Array<number>(24).fill(0);
@@ -27,7 +29,11 @@ export function dayUse(rows: HalfHour[], day: string) {
 	const typical = whole.length
 		? hours.map((_, h) => whole.reduce((sum, w) => sum + w[h], 0) / whole.length)
 		: null;
-	return { hours, typical, typicalDays: whole.length };
+	return {
+		hours,
+		kwh: total(hours),
+		typical,
+		typicalKwh: typical && total(typical),
+		typicalDays: whole.length
+	};
 }
-
-export const total = (hours: number[]) => hours.reduce((a, b) => a + b, 0);
