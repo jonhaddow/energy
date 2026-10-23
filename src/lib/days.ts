@@ -26,7 +26,8 @@ const sum = (days: DayTotal[]) => ({
 
 /**
  * This week so far (Monday to `to`), and a typical week so far: the average of
- * the same days in the weeks before that have them all.
+ * the same days in the weeks before that have them all (none if this week
+ * has a day missing).
  */
 export function weekSoFar(days: DayTotal[], to: string) {
 	const byDay = new Map(days.map((d) => [d.day, d]));
@@ -36,19 +37,16 @@ export function weekSoFar(days: DayTotal[], to: string) {
 		return ds.every((d) => d && d.kwh > 0) ? sum(ds as DayTotal[]) : null;
 	};
 	const before = [1, 2, 3, 4].map((w) => span(addDays(to, -7 * w))).filter((w) => w !== null);
-	const typical = before.length
-		? {
-				kwh: before.reduce((s, w) => s + w.kwh, 0) / before.length,
-				pence: before.some((w) => w.pence === null)
-					? null
-					: before.reduce((s, w) => s + w.pence!, 0) / before.length
-			}
-		: null;
+	const n = before.length;
+	const all = sum(before.map((w) => ({ day: '', ...w })));
+	// A day missing this week would make it look low: no comparison then.
+	const typical =
+		n && span(to) ? { kwh: all.kwh / n, pence: all.pence === null ? null : all.pence / n } : null;
 	return {
 		from: addDays(to, 1 - length),
 		to,
 		...sum(days.filter((d) => d.day > addDays(to, -length) && d.day <= to)),
 		typical,
-		weeks: before.length
+		weeks: n
 	};
 }

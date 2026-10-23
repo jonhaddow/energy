@@ -45,9 +45,7 @@
 				<circle class={mark} cx={i * step + step / 2} cy={y(d.kwh) - 6} r="3" />
 			{/if}
 		</a>
-	{/each}
-	<!-- Every week back from the newest day. -->
-	{#each days as d, i (d.day)}
+		<!-- A label every week back from the newest day. -->
 		{#if (days.length - 1 - i) % 7 === 0}
 			<text x={i * step + step / 2} y={H + 16} text-anchor="middle"
 				>{formatDay(d.day).slice(4)}</text

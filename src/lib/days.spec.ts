@@ -30,6 +30,19 @@ describe('weekSoFar', () => {
 		expect(w.typical).toEqual({ kwh: 30, pence: 300 });
 	});
 
+	it('is just the day on a Monday', () => {
+		const w = weekSoFar(
+			days('2026-10-12', 8, () => 10),
+			'2026-10-19'
+		);
+		expect(w).toMatchObject({ from: '2026-10-19', kwh: 10, typical: { kwh: 10 }, weeks: 1 });
+	});
+
+	it('has no typical week when this week has a day missing', () => {
+		const ds = days('2026-09-21', 31, (i) => (i === 29 ? 0 : 10));
+		expect(weekSoFar(ds, '2026-10-21').typical).toBeNull();
+	});
+
 	it('leaves out weeks with a missing day', () => {
 		const ds = days('2026-09-21', 31, (i) => (i === 8 ? 0 : 10));
 		expect(weekSoFar(ds, '2026-10-21').weeks).toBe(3);

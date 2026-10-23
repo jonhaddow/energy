@@ -14,11 +14,12 @@
 		{ value: 'gas', label: 'Gas' }
 	];
 	const weekday = (day: string) => formatDay(day).slice(0, 3);
-	/** "↓ 6% less" or "↑ 12% more", and whether it's less. */
+	/** "↓ 6% less" or "↑ 12% more", whether it's less, and whether it rounds to 0%. */
 	const change = (value: number, typical: number) => {
 		const c = value / typical - 1;
 		return {
 			less: c < 0,
+			same: Math.abs(c) < 0.005,
 			text: `${c < 0 ? '↓' : '↑'} ${formatPercent(c)} ${c < 0 ? 'less' : 'more'}`
 		};
 	};
@@ -59,14 +60,12 @@
 			{#if u.upTo !== null}
 				<p class="muted">So far: readings up to {String(u.upTo + 1).padStart(2, '0')}:00</p>
 			{:else if u.typicalKwh}
-				{@const change = u.kwh / u.typicalKwh - 1}
-				{#if Math.abs(change) < 0.005}
+				{@const c = change(u.kwh, u.typicalKwh)}
+				{#if c.same}
 					<p>About the same as a typical day</p>
 				{:else}
-					<p class={change < 0 ? 'good' : 'over'}>
-						{change < 0 ? '↓' : '↑'}
-						{formatPercent(change)}
-						{change < 0 ? 'less' : 'more'} than a typical day
+					<p class={c.less ? 'good' : 'over'}>
+						{c.text} than a typical day
 						<span class="muted">({formatSmallKwh(u.typicalKwh)})</span>
 					</p>
 				{/if}
