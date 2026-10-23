@@ -253,5 +253,9 @@
 	.link {
 		padding: 8px;
 		color: var(--muted);
+		transition: opacity 0.1s;
+	}
+	.link:active {
+		opacity: 0.6;
 	}
 </style>
