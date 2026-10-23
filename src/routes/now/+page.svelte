@@ -116,7 +116,7 @@
 				days={data.bars}
 				marks={data.unusual?.marks ?? null}
 				selected={u.day}
-				href={(d) => href(data.fuel, d)}
+				href={(d: string) => href(data.fuel, d)}
 			/>
 			{#if data.unusual?.marks.size}
 				<p class="muted small">
