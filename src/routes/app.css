@@ -79,7 +79,8 @@
 	.page {
 		max-width: 480px;
 		margin: 0 auto;
-		padding: 28px 16px calc(32px + env(safe-area-inset-bottom));
+		/* Below the iPhone's status bar: the app runs full screen (viewport-fit=cover). */
+		padding: calc(28px + env(safe-area-inset-top)) 16px calc(32px + env(safe-area-inset-bottom));
 		display: flex;
 		flex-direction: column;
 		gap: 20px;
