@@ -104,7 +104,7 @@
 					</p>
 				{/if}
 				{#if data.fixedPence !== null}
-					<p class="fixed muted small">
+					<p class="standing muted small">
 						Standing charges: {formatAmount(data.fixedPence / 100, 'gbp')} a year, before using anything
 					</p>
 				{/if}
@@ -221,7 +221,7 @@
 		justify-content: space-between;
 	}
 	.adjusted,
-	.fixed {
+	.standing {
 		margin-top: 10px;
 		padding-top: 10px;
 		border-top: 1px solid var(--line);

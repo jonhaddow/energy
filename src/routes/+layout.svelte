@@ -20,7 +20,8 @@
 		if (document.visibilityState === 'visible' && (await updated.check())) location.reload();
 	}
 
-	// Pages crossfade into each other (app.css), where the browser can.
+	// Pages crossfade into each other (app.css), where the browser can; not a change
+	// of fuel or month on the same page.
 	onNavigate((navigation) => {
 		if (!document.startViewTransition || navigation.to?.url.pathname === page.url.pathname) return;
 		return new Promise((resolve) => {

@@ -1,11 +1,9 @@
-/* Tailwind's theme and utilities for the shadcn-svelte components in
+/* Tailwind's theme and utilities for the shadcn-svelte Button in
    lib/components/ui, without its reset: the rules below are the reset. They sit
    in the base layer, so utility classes win over them. */
 @layer theme, base, components, utilities;
 @import 'tailwindcss/theme.css' layer(theme);
 @import 'tailwindcss/utilities.css' layer(utilities);
-@import 'tw-animate-css';
-@import 'shadcn-svelte/tailwind.css';
 
 /* The components' colour names, mapped onto the app's own. */
 @theme inline {
