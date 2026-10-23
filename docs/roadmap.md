@@ -10,15 +10,13 @@ The aim: not just what we used, but whether it's more or less than it should be,
 - kWh or £ on every view, and a Both tab (electricity and gas together).
 - Why the bill changed: the year-on-year £ change split into using less or more, and prices.
 - Weather-adjusted gas: the 12-month comparison per heating degree day (Open-Meteo temperatures for the town set in Settings).
-- Now (first cut, linked from Home's footer): a day hour by hour against a typical day (the whole days in the four weeks before), kWh and £, stepping day by day.
+- Now (first cut, linked from Home's footer): a day hour by hour against a typical day (the whole days in the four weeks before), kWh and £, stepping day by day; this week so far against the same days in the 4 weeks before (kWh and £); the last 30 days as bars (tap for that day), unusual electricity days marked.
 - Quotes: fixed-price offers typed in, each priced on the last 12 months' use, against what we pay now.
 - The fixed part: standing charges a year at today's prices (in £). Price changes marked on the chart (in £).
 
 ## Phase 1: the basics with meter data
 
 - **Two pages, Now and Trends**: Trends is today's page (months, year on year). Now, once readings arrive (hidden until then), a proper place in the app rather than a footer link, and:
-  - the last 30 days as daily bars, unusual days marked;
-  - this week against a typical week, kWh and £.
 
 ## Phase 2: the big insights
 

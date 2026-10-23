@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
 	import DayChart from '#lib/components/DayChart.svelte';
+	import DaysChart from '#lib/components/DaysChart.svelte';
 	import { addDays, formatDay } from '#lib/dates.ts';
 	import { formatPence, formatPercent, formatSmallKwh } from '#lib/format.ts';
 
@@ -12,6 +13,15 @@
 		{ value: 'electricity', label: 'Electricity' },
 		{ value: 'gas', label: 'Gas' }
 	];
+	const weekday = (day: string) => formatDay(day).slice(0, 3);
+	/** "↓ 6% less" or "↑ 12% more", and whether it's less. */
+	const change = (value: number, typical: number) => {
+		const c = value / typical - 1;
+		return {
+			less: c < 0,
+			text: `${c < 0 ? '↓' : '↑'} ${formatPercent(c)} ${c < 0 ? 'less' : 'more'}`
+		};
+	};
 	const dayName = (day: string, today: string) =>
 		day === today ? 'Today' : day === addDays(today, -1) ? 'Yesterday' : formatDay(day);
 </script>
@@ -77,6 +87,47 @@
 				</p>
 			{/if}
 		</section>
+
+		{@const w = data.week}
+		<section class="card week">
+			<h2>This week</h2>
+			<p class="muted">{w.from === w.to ? weekday(w.to) : `${weekday(w.from)}–${weekday(w.to)}`}</p>
+			<p class="mid">
+				{formatSmallKwh(w.kwh)}{#if w.pence !== null}<span class="muted"
+						>{` · ${formatPence(w.pence)}`}</span
+					>{/if}
+			</p>
+			{#if w.typical}
+				{@const c = change(w.kwh, w.typical.kwh)}
+				<p class={c.less ? 'good' : 'over'}>
+					{c.text} than a typical week so far
+					<span class="muted"
+						>({formatSmallKwh(w.typical.kwh)}{#if w.typical.pence !== null}, {formatPence(
+								w.typical.pence
+							)}{/if})</span
+					>
+				</p>
+				<p class="muted small">Typical: the same days in the {w.weeks} weeks before.</p>
+			{/if}
+		</section>
+
+		<section class="card chart">
+			<h2>Last 30 days</h2>
+			<DaysChart
+				days={data.bars}
+				marks={data.unusual?.marks ?? null}
+				selected={u.day}
+				href={(d) => href(data.fuel, d)}
+			/>
+			{#if data.unusual?.marks.size}
+				<p class="muted small">
+					<span class="dot high" aria-hidden="true"></span> Unusually high,
+					<span class="dot low" aria-hidden="true"></span> unusually low: over 1.5× or under half
+					the usual day ({formatSmallKwh(data.unusual.median)})
+				</p>
+			{/if}
+			<p class="muted small">Tap a day to see it hour by hour.</p>
+		</section>
 	{/if}
 </main>
 
@@ -133,5 +184,28 @@
 	}
 	.small {
 		font-size: 13px;
+	}
+	.week {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+	.mid {
+		font-size: 28px;
+		font-weight: 600;
+		letter-spacing: -0.02em;
+	}
+	.dot {
+		display: inline-block;
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		margin-left: 4px;
+	}
+	.dot.high {
+		background: var(--over);
+	}
+	.dot.low {
+		background: var(--good);
 	}
 </style>
