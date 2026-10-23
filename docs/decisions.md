@@ -2,7 +2,7 @@
 
 - **Bright (Hildebrand Glow) for meter data**, not the Loop app: Loop has no public API, while Glowmarkt has a documented one that reads the meter through the DCC. Free.
 - **Half-hourly readings stored**, not daily totals: they're the raw data (owning it was a goal), a year is ~35k small rows across both fuels, and day/month totals group by the stored UK `day`.
-- **Sheet history kept as monthly totals** (`month_history`), and readings replace a month only once they cover it fully (every day has a real reading: Bright stores missing ones as 0, so counting half hours made gappy months look whole), so a month the meter only partly covers doesn't look like a drop.
+- **Sheet history kept as monthly totals** (`month_history`), and readings replace a month only once they cover it fully (every day has a real reading: Bright stores missing ones as 0, so counting half hours made gappy months look whole; for gas, which can really be 0 all day, electricity's reading that day counts too), so a month the meter only partly covers doesn't look like a drop.
 - **Backfill 2 windows per hourly run** (18 days per fuel): keeps each run within Workers' free-plan CPU and subrequest limits. About a year of history takes a day.
 - **The sheet's "Year 1" and "Year 2" were imported as 2025 and 2026** (Year 2 has data to September, last edited October 2026). Check against the meter data once it backfills; fix by re-importing.
 - **Not doing (October 2026)**: notes for life events on the charts (new boiler, insulation), monthly kWh or £ targets, and grid carbon intensity / greener timing. Jon wasn't interested. Also the comparison with Ofgem's typical homes (TDCVs): built (#17), then removed, as Jon wouldn't use it; its table was dropped.
