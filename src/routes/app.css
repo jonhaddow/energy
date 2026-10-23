@@ -86,12 +86,64 @@
 		gap: 20px;
 	}
 
+	/* Room under the last card for the tab bar. */
+	body:has(.tabs) .page {
+		padding-bottom: calc(96px + env(safe-area-inset-bottom));
+	}
+
+	/* The pages, along the bottom where a thumb reaches. */
+	.tabs {
+		position: fixed;
+		inset: auto 0 0;
+		z-index: 10;
+		display: flex;
+		justify-content: center;
+		padding: 0 8px env(safe-area-inset-bottom);
+		background: var(--card);
+		border-top: 1px solid var(--line);
+	}
+
+	.tabs a {
+		flex: 0 1 120px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 3px;
+		padding: 9px 0 7px;
+		color: var(--muted);
+		text-decoration: none;
+		font-size: 11px;
+		font-weight: 600;
+		transition: opacity 0.1s;
+	}
+
+	.tabs a:active {
+		opacity: 0.6;
+	}
+
+	.tabs a[aria-current='page'] {
+		color: var(--accent);
+	}
+
+	.tabs svg {
+		width: 24px;
+		height: 24px;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 2;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+
 	/* Laptops: more width, for pages laid out in columns. */
 	@media (min-width: 960px) {
 		.page.wide {
 			max-width: 1040px;
 			padding: 40px 32px 48px;
 			gap: 24px 32px;
+		}
+		body:has(.tabs) .page.wide {
+			padding-bottom: 112px;
 		}
 	}
 
@@ -177,17 +229,6 @@
 		border-radius: var(--radius);
 		padding: 12px 14px;
 		font-size: 15px;
-	}
-
-	.back {
-		display: inline-flex;
-		align-items: center;
-		min-height: 44px;
-		color: var(--muted);
-		text-decoration: none;
-		font-weight: 600;
-		font-size: 15px;
-		align-self: flex-start;
 	}
 
 	/* A switch between two or three views or settings: links, or radio labels. */

@@ -33,7 +33,7 @@
 
 <main class="page">
 	<header>
-		<a class="back" href="/">‹ Back</a>
+		<h1>Now</h1>
 		<nav class="segments" aria-label="Fuel">
 			{#each fuels as f (f.value)}
 				<a href={href(f.value)} aria-current={data.fuel === f.value ? 'page' : undefined}
