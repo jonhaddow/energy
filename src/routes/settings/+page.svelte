@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Button } from '#lib/components/ui/button/index.ts';
 	import type { PageProps } from './$types';
 	import { enhance } from '$app/forms';
 	import { formatDate } from '#lib/dates.ts';
@@ -79,7 +80,7 @@
 			<input type="number" name="standing" step="any" min="0" inputmode="decimal" required />
 		</label>
 		<p class="muted small">The same fuel and date again replaces those prices.</p>
-		<button class="btn primary">Save</button>
+		<Button>Save</Button>
 	</form>
 
 	<form class="card place" method="POST" action="?/location" use:enhance>
@@ -93,7 +94,7 @@
 			Town
 			<input name="place" value={data.location?.name.split(',')[0] ?? ''} required />
 		</label>
-		<button class="btn">Save location</button>
+		<Button variant="outline">Save location</Button>
 	</form>
 
 	<form class="out" method="POST" action="/logout">

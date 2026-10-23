@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Button } from '#lib/components/ui/button/index.ts';
 	import type { PageProps } from './$types';
 	import { enhance } from '$app/forms';
 	import { formatDate, formatMonths } from '#lib/dates.ts';
@@ -116,7 +117,7 @@
 			<input type="date" name="fixedUntil" />
 		</label>
 		<p class="muted small">With VAT, as on the quote.</p>
-		<button class="btn primary">Add</button>
+		<Button>Add</Button>
 	</form>
 </main>
 

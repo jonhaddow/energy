@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { LayoutProps } from './$types';
-	import { beforeNavigate } from '$app/navigation';
-	import { updated } from '$app/state';
+	import { beforeNavigate, onNavigate } from '$app/navigation';
+	import { updated, page } from '$app/state';
 	// Served with the app (not Google Fonts): no extra connections before text shows.
 	import '@fontsource-variable/space-grotesk';
 	import font from '@fontsource-variable/space-grotesk/files/space-grotesk-latin-wght-normal.woff2?url';
@@ -19,6 +19,18 @@
 	async function reloadIfUpdated() {
 		if (document.visibilityState === 'visible' && (await updated.check())) location.reload();
 	}
+
+	// Pages crossfade into each other (app.css), where the browser can; not a change
+	// of fuel or month on the same page.
+	onNavigate((navigation) => {
+		if (!document.startViewTransition || navigation.to?.url.pathname === page.url.pathname) return;
+		return new Promise((resolve) => {
+			document.startViewTransition(async () => {
+				resolve();
+				await navigation.complete;
+			});
+		});
+	});
 </script>
 
 <svelte:head>
