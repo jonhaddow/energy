@@ -16,7 +16,7 @@ The aim: not just what we used, but whether it's more or less than it should be,
 
 ## Phase 1: the basics with meter data
 
-- **Two pages, Now and Trends**: Trends is today's page (months, year on year). Now, once readings arrive (hidden until then), a proper place in the app rather than a footer link, and:
+- **Two pages, Now and Trends**: Trends is today's page (months, year on year). Now, once readings arrive (hidden until then), needs a proper place in the app rather than a footer link.
 
 ## Phase 2: the big insights
 
