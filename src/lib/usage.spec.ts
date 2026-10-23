@@ -22,7 +22,7 @@ describe('monthlyUse', () => {
 	];
 
 	it('prefers readings that cover the whole month', () => {
-		const meter = [{ month: '2025-09', wh: 310_500, halfHours: 30 * 48 }];
+		const meter = [{ month: '2025-09', wh: 310_500, days: 30 }];
 		expect(monthlyUse(meter, history, '2026-10', [])).toEqual([
 			{ month: '2025-08', kwh: 250, pence: null, lastYearPricesPence: null, partial: false },
 			{ month: '2025-09', kwh: 310.5, pence: null, lastYearPricesPence: null, partial: false }
@@ -30,7 +30,7 @@ describe('monthlyUse', () => {
 	});
 
 	it('keeps the history when readings only cover part of the month', () => {
-		const meter = [{ month: '2025-09', wh: 100_000, halfHours: 10 * 48 }];
+		const meter = [{ month: '2025-09', wh: 100_000, days: 10 }];
 		expect(monthlyUse(meter, history, '2026-10', [])[1]).toEqual({
 			month: '2025-09',
 			kwh: 300,
@@ -42,15 +42,19 @@ describe('monthlyUse', () => {
 
 	it('marks this month, and months with only some readings, as partial', () => {
 		const meter = [
-			{ month: '2026-09', wh: 50_000, halfHours: 5 * 48 },
-			{ month: '2026-10', wh: 80_000, halfHours: 16 * 48 }
+			{ month: '2026-09', wh: 50_000, days: 5 },
+			{ month: '2026-10', wh: 80_000, days: 16 }
 		];
 		expect(monthlyUse(meter, [], '2026-10', []).map((m) => m.partial)).toEqual([true, true]);
 	});
 
-	it('allows for the clocks going back', () => {
-		const meter = [{ month: '2025-10', wh: 1, halfHours: 31 * 48 - 2 }];
-		expect(monthlyUse(meter, [], '2026-10', [])[0].partial).toBe(false);
+	it("isn't whole with a day Bright has nothing for", () => {
+		const meter = [{ month: '2025-09', wh: 300_000, days: 29 }];
+		expect(monthlyUse(meter, history, '2026-10', [])[1].kwh).toBe(300);
+	});
+
+	it('leaves out months with no real readings', () => {
+		expect(monthlyUse([{ month: '2025-05', wh: 0, days: 0 }], [], '2026-10', [])).toEqual([]);
 	});
 });
 
@@ -83,7 +87,7 @@ describe('compare', () => {
 			...months('2025-01', new Array<number>(12).fill(90))
 		];
 		// January 2026 is still going: 2025 against 2024.
-		const meter = [{ month: '2026-01', wh: 50_000, halfHours: 5 * 48 }];
+		const meter = [{ month: '2026-01', wh: 50_000, days: 5 }];
 		expect(compare(monthlyUse(meter, history, '2026-01', prices), 'kwh')).toEqual({
 			from: '2025-01',
 			to: '2025-12',
@@ -244,7 +248,7 @@ describe('twelveMonthsTo', () => {
 		Array.from({ length: n }, (_, i) => ({ month: addMonths('2025-01', i), kwh: 100 }));
 
 	it('adds up the 12 months to a month, if all are whole', () => {
-		const meter = [{ month: '2026-02', wh: 5000, halfHours: 48 }];
+		const meter = [{ month: '2026-02', wh: 5000, days: 1 }];
 		const use = monthlyUse(meter, history(13), '2026-02', prices);
 		expect(latestWhole(use)).toBe('2026-01');
 		expect(twelveMonthsTo(use, '2026-01')).toBe(1200);
