@@ -1,4 +1,4 @@
-import { asc, count, eq, max, sql, sum } from 'drizzle-orm';
+import { asc, eq, max, sql, sum } from 'drizzle-orm';
 import { monthHistory, reading, syncStatus, tariff, type Fuel } from './db/schema.ts';
 import { monthlyUse } from '../usage.ts';
 import type { DB } from './db/index.ts';
@@ -8,7 +8,14 @@ export async function fuelMonths(db: DB, fuel: Fuel, thisMonth: string) {
 	const month = sql<string>`substr(${reading.day}, 1, 7)`;
 	const [meter, history, prices] = await Promise.all([
 		db
-			.select({ month, wh: sum(reading.wh).mapWith(Number), halfHours: count() })
+			.select({
+				month,
+				wh: sum(reading.wh).mapWith(Number),
+				// Bright stores missing readings as 0, so a day counts when it has a real one.
+				days: sql<number>`count(distinct case when ${reading.wh} > 0 then ${reading.day} end)`.mapWith(
+					Number
+				)
+			})
 			.from(reading)
 			.where(eq(reading.fuel, fuel))
 			.groupBy(month),

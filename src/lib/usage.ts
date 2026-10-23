@@ -13,8 +13,8 @@ export type MonthUse = {
 	partial: boolean;
 };
 
-/** A month's meter total: watt hours and how many half hours it has readings for. */
-export type MeterMonth = { month: string; wh: number; halfHours: number };
+/** A month's meter total: watt hours, and how many days have a real (non-zero) reading. */
+export type MeterMonth = { month: string; wh: number; days: number };
 
 /** Prices from a date (YYYY-MM-DD) until the next one, in pence with VAT. */
 export type Price = { from: string; unitPence: number; standingPence: number };
@@ -64,15 +64,9 @@ export function monthlyUse(
 	};
 	for (const h of history) add(h.month, h.kwh, daysInMonth(h.month), false);
 	for (const m of meter) {
-		// Clock changes add or drop two half hours; allow a few more missing.
-		const whole = m.month < thisMonth && m.halfHours >= daysInMonth(m.month) * 48 - 6;
-		if (whole || !months.has(m.month))
-			add(
-				m.month,
-				m.wh / 1000,
-				whole ? daysInMonth(m.month) : Math.max(1, Math.round(m.halfHours / 48)),
-				!whole
-			);
+		if (!m.days) continue;
+		const whole = m.month < thisMonth && m.days === daysInMonth(m.month);
+		if (whole || !months.has(m.month)) add(m.month, m.wh / 1000, m.days, !whole);
 	}
 	return [...months.values()].sort((a, b) => a.month.localeCompare(b.month));
 }
