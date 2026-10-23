@@ -9,7 +9,8 @@
 
 	let { data, children }: LayoutProps = $props();
 
-	// Lucide's icons (24×24, stroked), inline: see the app-stack notes on @lucide/svelte.
+	// Lucide's chart-line, zap, clipboard-list and sliders-horizontal (24×24, stroked),
+	// inline: @lucide/svelte makes Vite reload mid-test.
 	const tabs = [
 		{ href: '/', label: 'Trends', icon: 'M3 3v16a2 2 0 0 0 2 2h16 M7 16l4-6 4 3 5-7' },
 		{ href: '/now', label: 'Now', icon: 'M13 2 3 14h9l-1 8 10-12h-9l1-8z' },
@@ -57,7 +58,7 @@
 
 {@render children()}
 
-{#if data.user && page.url.pathname !== '/login'}
+{#if data.user}
 	<nav class="tabs" aria-label="Pages">
 		{#each tabs as t (t.href)}
 			<a href={t.href} aria-current={page.url.pathname === t.href ? 'page' : undefined}>

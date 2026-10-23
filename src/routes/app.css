@@ -142,9 +142,6 @@
 			padding: 40px 32px 48px;
 			gap: 24px 32px;
 		}
-		body:has(.tabs) .page.wide {
-			padding-bottom: 112px;
-		}
 	}
 
 	/* A wordmark rather than a headline. */
