@@ -25,7 +25,6 @@
 
 <main class="page wide">
 	<header>
-		<a class="back" href="/">‹ Back</a>
 		<h1>Quotes</h1>
 	</header>
 
