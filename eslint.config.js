@@ -58,8 +58,9 @@ export default defineConfig(
 		}
 	},
 	{
-		// Override or add rule settings here, such as:
-		// 'svelte/button-has-type': 'error'
-		rules: {}
+		rules: {
+			// No base path, so plain hrefs and goto() calls don't need resolve().
+			'svelte/no-navigation-without-resolve': 'off'
+		}
 	}
 );
