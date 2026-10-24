@@ -21,7 +21,6 @@
 
 <main class="page wide">
 	<header>
-		<a class="back" href="/">‹ Back</a>
 		<h1>Settings</h1>
 	</header>
 
