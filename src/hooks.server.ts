@@ -52,5 +52,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 			html.replace('%theme%', theme).replace('%theme-color%', themeColourMeta(theme))
 	});
 	for (const [name, value] of Object.entries(SECURITY_HEADERS)) response.headers.set(name, value);
+	// Pages name this build's files, which the next deploy deletes. Without this,
+	// iOS reopens the home-screen app from a cached page whose CSS and JS are gone.
+	if (response.headers.get('content-type')?.startsWith('text/html'))
+		response.headers.set('Cache-Control', 'no-store');
 	return response;
 };
