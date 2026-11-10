@@ -1,7 +1,7 @@
 import { index, integer, primaryKey, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
-export const FUELS = ['electricity', 'gas'] as const;
-export type Fuel = (typeof FUELS)[number];
+import { FUELS } from '../../fuels.ts';
+export { FUELS, type Fuel } from '../../fuels.ts';
 
 /** People who can sign in (Google accounts). */
 export const user = sqliteTable('user', {

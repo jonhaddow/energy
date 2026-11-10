@@ -21,7 +21,7 @@
 
 <main class="page wide">
 	<header>
-		<h1>Settings</h1>
+		<h1><a class="back" href="/" aria-label="Home">‹</a>Settings</h1>
 	</header>
 
 	<section class="card prices">
@@ -82,6 +82,14 @@
 		<Button>Save</Button>
 	</form>
 
+	<a class="card quotes" href="/quotes">
+		<div>
+			<h2>Quotes</h2>
+			<span class="small">Price up a new tariff against what we pay now</span>
+		</div>
+		<span class="muted" aria-hidden="true">›</span>
+	</a>
+
 	<form class="card place" method="POST" action="?/location" use:enhance>
 		<h2>Location</h2>
 		<p class="muted small">
@@ -115,9 +123,10 @@
 			grid-template-areas:
 				'top top'
 				'prices add'
+				'quotes add'
 				'place add'
 				'out add';
-			grid-template-rows: auto auto auto 1fr;
+			grid-template-rows: auto auto auto auto 1fr;
 			align-items: start;
 		}
 		header {
@@ -131,6 +140,9 @@
 		}
 		.place {
 			grid-area: place;
+		}
+		.quotes {
+			grid-area: quotes;
 		}
 		.out {
 			grid-area: out;
@@ -178,6 +190,18 @@
 	}
 	.add {
 		gap: 14px;
+	}
+	.quotes {
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		text-decoration: none;
+		font-size: 22px;
+	}
+	.quotes > div {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
 	}
 	.signout {
 		width: 100%;

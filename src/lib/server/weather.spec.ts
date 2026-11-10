@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { testDb } from './test-db.ts';
 import { monthHistory, weatherDay } from './db/schema.ts';
-import { degreeDays, saveLocation, syncWeather } from './weather.ts';
+import { dailyDegreeDays, saveLocation, syncWeather } from './weather.ts';
 import { addDays } from '../dates.ts';
 import type { DB } from './db/index.ts';
 
@@ -55,12 +55,15 @@ describe('syncWeather', () => {
 	});
 });
 
-describe('degreeDays', () => {
+describe('dailyDegreeDays', () => {
 	it('adds up how far each day is below 15.5°C', async () => {
 		await db.insert(weatherDay).values([
 			{ day: '2026-01-01', meanC: 5.5 },
 			{ day: '2026-01-02', meanC: 18 }
 		]);
-		expect(await degreeDays(db)).toEqual([{ month: '2026-01', degreeDays: 10, days: 2 }]);
+		expect(await dailyDegreeDays(db, '2026-01-01', '2026-01-31')).toEqual([
+			{ day: '2026-01-01', degreeDays: 10 },
+			{ day: '2026-01-02', degreeDays: 0 }
+		]);
 	});
 });

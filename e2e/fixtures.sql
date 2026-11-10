@@ -31,3 +31,7 @@ INSERT INTO reading (fuel, start, day, wh)
 			WHEN n >= 34 * 48 + 36 AND n < 34 * 48 + 42 THEN 750
 			ELSE 250
 		END FROM h;
+-- Gas over the same five weeks: 1.5 kWh a half hour (72 kWh a day).
+INSERT INTO reading (fuel, start, day, wh)
+	WITH RECURSIVE h(n) AS (SELECT 0 UNION ALL SELECT n + 1 FROM h WHERE n < 35 * 48 - 1)
+	SELECT 'gas', 1765497600 + n * 1800, date(1765497600 + n * 1800, 'unixepoch'), 1500 FROM h;
