@@ -29,7 +29,7 @@
 		--accent: light-dark(#e07a10, #f5a03c);
 		/* Gas, beside electricity's --accent in charts. */
 		--gas: light-dark(#3d6f94, #7fb0d6);
-		/* Text on an --accent background (primary buttons, chosen tabs). */
+		/* Text on an --accent background (primary buttons, chosen segments). */
 		--on-accent: light-dark(#ffffff, #1a1206);
 		--muted: light-dark(#6f6a62, #a39d93);
 		--line: light-dark(#e6e0d4, #2d2a26);

@@ -60,6 +60,14 @@ describe('home', () => {
 		expect(h.fuels.gas.before).toBeNull();
 	});
 
+	it('leaves out a day Bright missed, a year before too', () => {
+		const days = everyDay('2025-10-01', '2026-11-10', 10);
+		days.set('2026-11-03', 0);
+		const h = home(input({ days: { electricity: days, gas: input().days.gas } }));
+		expect(h.fuels.electricity.now).toEqual({ kwh: 90, pence: 1350 });
+		expect(h.fuels.electricity.before).toEqual({ kwh: 90, pence: 1350 });
+	});
+
 	it('has no gas before its first reading', () => {
 		const h = home(input({ gasFrom: null }));
 		expect(h.fuels.gas.now).toBeNull();

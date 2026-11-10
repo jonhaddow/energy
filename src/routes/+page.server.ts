@@ -4,7 +4,8 @@ import { allTariffs } from '#lib/server/tariffs.ts';
 import { dailyDegreeDays } from '#lib/server/weather.ts';
 import { dayOf } from '#lib/dates.ts';
 import { addMonths } from '#lib/usage.ts';
-import { FUELS, home } from '#lib/home.ts';
+import { home } from '#lib/home.ts';
+import { byFuel } from '#lib/fuels.ts';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -38,9 +39,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 			days: { electricity: kwhByDay(elecDays), gas: kwhByDay(gasDays) },
 			gasFrom: gas ? dayOf(gas.first) : null,
 			// allTariffs is newest first.
-			prices: Object.fromEntries(
-				FUELS.map((f) => [f, tariffs.filter((t) => t.fuel === f).toReversed()])
-			) as Record<(typeof FUELS)[number], typeof tariffs>,
+			prices: byFuel((f) => tariffs.filter((t) => t.fuel === f).toReversed()),
 			months: { electricity: elecMonths, gas: gasMonths },
 			degreeDays: new Map(degreeDays.map((d) => [d.day, d.degreeDays]))
 		})

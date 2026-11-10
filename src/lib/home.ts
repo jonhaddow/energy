@@ -2,10 +2,7 @@
 // usual day, the last 30 days and the last 12 months, in £ for both fuels.
 import { addDays, daysInMonth } from './dates.ts';
 import { addMonths, type MonthUse, type Price } from './usage.ts';
-
-export const FUELS = ['electricity', 'gas'] as const;
-export type Fuel = (typeof FUELS)[number];
-type ByFuel<T> = Record<Fuel, T>;
+import { FUELS, byFuel, type ByFuel, type Fuel } from './fuels.ts';
 
 /** A fuel's use and cost over some days. */
 export type Use = { kwh: number; pence: number | null };
@@ -83,22 +80,26 @@ export function home(input: HomeInput) {
 		if (fromReadings) return fromReadings;
 		const m = months[fuel].find((m) => m.month === addMonths(month, -12) && !m.partial);
 		if (!m) return null;
-		const share = ds.length / daysInMonth(month);
+		const share = Math.min(1, ds.length / daysInMonth(m.month));
 		return { kwh: m.kwh * share, pence: m.pence === null ? null : m.pence * share };
 	}
 
 	// This month so far: the newest whole day's month, so on the 1st it's last month whole.
+	// Only the days with readings, so a day Bright missed doesn't blank the month.
 	const month = lastWhole.slice(0, 7);
-	const soFarDays = daysBetween(`${month}-01`, lastWhole);
-	const fuels = Object.fromEntries(
-		FUELS.map((f) => [f, { now: over(f, soFarDays), before: lastYear(f, month, soFarDays) }])
-	) as ByFuel<{ now: Use | null; before: Use | null }>;
+	const soFarDays = daysBetween(`${month}-01`, lastWhole).filter((d) => has('electricity', d));
+	const fuels = byFuel((f) => ({ now: over(f, soFarDays), before: lastYear(f, month, soFarDays) }));
 
 	// Gas allowing for the weather: kWh per heating degree day, against a year before.
-	const dd = (ds: (string | null)[]) =>
-		ds.every((d) => d !== null && degreeDays.has(d))
-			? ds.reduce((s, d) => s + degreeDays.get(d!)!, 0)
-			: null;
+	const dd = (ds: (string | null)[]) => {
+		let sum = 0;
+		for (const d of ds) {
+			const v = d === null ? undefined : degreeDays.get(d);
+			if (v === undefined) return null;
+			sum += v;
+		}
+		return sum;
+	};
 	const gas = fuels.gas;
 	const ddNow = dd(soFarDays);
 	const ddBefore = dd(soFarDays.map(yearBefore));
@@ -119,7 +120,7 @@ export function home(input: HomeInput) {
 	};
 	const yesterday = {
 		day: lastWhole,
-		fuels: Object.fromEntries(FUELS.map((f) => [f, over(f, [lastWhole])])) as ByFuel<Use | null>,
+		fuels: byFuel((f) => over(f, [lastWhole])),
 		pence: dayTotal(lastWhole),
 		usualPence: median(
 			daysBetween(addDays(lastWhole, -28), addDays(lastWhole, -1))
@@ -140,9 +141,7 @@ export function home(input: HomeInput) {
 	const monthOf = (fuel: Fuel, m: string) => months[fuel].find((u) => u.month === m);
 	const year = Array.from({ length: 12 }, (_, i) => {
 		const m = addMonths(month, i - 11);
-		const now = Object.fromEntries(FUELS.map((f) => [f, monthOf(f, m)?.pence ?? null])) as ByFuel<
-			number | null
-		>;
+		const now = byFuel((f) => monthOf(f, m)?.pence ?? null);
 		const shown = FUELS.filter((f) => now[f] !== null);
 		const before = shown.map((f) => monthOf(f, addMonths(m, -12)));
 		return {
@@ -158,8 +157,6 @@ export function home(input: HomeInput) {
 
 	return { month, upTo: lastWhole, fuels, weather, yesterday, bars, year };
 }
-
-export type Home = ReturnType<typeof home>;
 
 /** "about usual", "more than usual" or "less than usual". */
 export function verdict(pence: number, usual: number) {

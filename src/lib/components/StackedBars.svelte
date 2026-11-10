@@ -18,7 +18,7 @@
 </script>
 
 <script lang="ts">
-	/** Oldest first; `selected` has its label in bold; `onselect` makes bars buttons. */
+	/** Oldest first; bars without an `href` are buttons for `onselect`; `selected` has its label in bold. */
 	let {
 		bars,
 		label,
@@ -62,19 +62,17 @@
 		{/snippet}
 		{#if b.href}
 			<a href={b.href} aria-label={b.name}>{@render body()}</a>
-		{:else if onselect}
+		{:else}
 			<g
 				role="button"
 				tabindex="0"
 				aria-label={b.name}
 				aria-pressed={selected === b.key}
-				onclick={() => onselect(b.key)}
-				onkeydown={(ev) => (ev.key === 'Enter' || ev.key === ' ') && onselect(b.key)}
+				onclick={() => onselect?.(b.key)}
+				onkeydown={(ev) => (ev.key === 'Enter' || ev.key === ' ') && onselect?.(b.key)}
 			>
 				{@render body()}
 			</g>
-		{:else}
-			{@render body()}
 		{/if}
 		{#if b.label}
 			<text x={x + step / 2} y={H + 16} text-anchor="middle" class:on={selected === b.key}

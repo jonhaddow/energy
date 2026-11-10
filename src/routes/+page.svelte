@@ -3,7 +3,8 @@
 	import StackedBars from '#lib/components/StackedBars.svelte';
 	import { MONTHS, daysInMonth, formatDay } from '#lib/dates.ts';
 	import { formatPence, formatPounds, formatPercent } from '#lib/format.ts';
-	import { FUELS, verdict, type Use } from '#lib/home.ts';
+	import { verdict, type Use } from '#lib/home.ts';
+	import { FUELS } from '#lib/fuels.ts';
 
 	let { data }: PageProps = $props();
 
@@ -27,12 +28,14 @@
 	const top = $derived.by(() => {
 		if (!h) return null;
 		const shown = FUELS.filter((f) => h.fuels[f].now?.pence != null);
+		if (!shown.length) return null;
 		const now = sum(shown.map((f) => h.fuels[f].now!.pence));
 		const comparable = shown.length > 0 && shown.every((f) => h.fuels[f].before?.pence != null);
 		const before = comparable ? sum(shown.map((f) => h.fuels[f].before!.pence)) : null;
 		const whole = Number(h.upTo.slice(8)) === daysInMonth(h.month);
-		const days = `${whole ? '' : `1–${Number(h.upTo.slice(8))} `}${shortMonth(h.month)}`;
-		return { shown, now, before, whole, days };
+		const upTo = Number(h.upTo.slice(8));
+		const days = `${whole ? '' : upTo === 1 ? '1 ' : `1–${upTo} `}${shortMonth(h.month)}`;
+		return { now, before, whole, days };
 	});
 
 	const fuelChange = (u: { now: Use | null; before: Use | null }) =>
@@ -63,46 +66,46 @@
 		</a>
 	</header>
 
-	{#if !h || !top}
+	{#if !h}
 		<p class="card empty muted">
 			No readings yet. They’ll appear after the first sync with Bright.
 		</p>
 	{:else}
-		<section class="card month">
-			<h2>{longMonth(h.month)}{top.whole ? '' : ' so far'}</h2>
-			<p class="big">{formatPounds(top.now)}</p>
-			{#if top.before !== null}
-				{@const c = change(top.now, top.before, 'gbp')}
-				<p>
-					<span class={c.less ? 'good' : 'over'}>{c.text}</span>
-					<span class="muted">than {top.days} last year</span>
-				</p>
-			{/if}
-			<div class="fuels">
-				{#each FUELS as f (f)}
-					{@const u = h.fuels[f]}
-					{@const c = fuelChange(u)}
-					<div>
-						<p><span class="key {f}"></span>{names[f]}</p>
-						{#if u.now?.pence != null}
-							<p class="amount">{formatPounds(u.now.pence)}</p>
-							{#if c}<p class={c.less ? 'good' : 'over'}>{c.text}</p>{/if}
-							{#if f === 'gas' && h.weather}
-								{@const w = h.weather}
-								<p class="muted small">
-									{formatPercent(w.colder)}
-									{w.colder < 0 ? 'milder' : 'colder'}; allowing for that,
-									{formatPercent(w.change)}
-									{w.change < 0 ? 'less' : 'more'} gas
-								</p>
+		{#if top}<section class="card month">
+				<h2>{longMonth(h.month)}{top.whole ? '' : ' so far'}</h2>
+				<p class="big">{formatPounds(top.now)}</p>
+				{#if top.before !== null}
+					{@const c = change(top.now, top.before, 'gbp')}
+					<p>
+						<span class={c.less ? 'good' : 'over'}>{c.text}</span>
+						<span class="muted">than {top.days} last year</span>
+					</p>
+				{/if}
+				<div class="fuels">
+					{#each FUELS as f (f)}
+						{@const u = h.fuels[f]}
+						{@const c = fuelChange(u)}
+						<div>
+							<p><span class="key {f}"></span>{names[f]}</p>
+							{#if u.now?.pence != null}
+								<p class="amount">{formatPounds(u.now.pence)}</p>
+								{#if c}<p class={c.less ? 'good' : 'over'}>{c.text}</p>{/if}
+								{#if f === 'gas' && h.weather}
+									{@const w = h.weather}
+									<p class="muted small">
+										{formatPercent(w.colder)}
+										{w.colder < 0 ? 'milder' : 'colder'}; allowing for that,
+										{formatPercent(w.change)}
+										{w.change < 0 ? 'less' : 'more'} gas
+									</p>
+								{/if}
+							{:else}
+								<p class="muted small">No readings</p>
 							{/if}
-						{:else}
-							<p class="muted small">No readings</p>
-						{/if}
-					</div>
-				{/each}
-			</div>
-		</section>
+						</div>
+					{/each}
+				</div>
+			</section>{/if}
 
 		{@const y = h.yesterday}
 		{#if y.pence !== null}
@@ -111,12 +114,11 @@
 				<div class="row">
 					<p class="mid">{formatPence(y.pence)}</p>
 					{#if y.usualPence}
+						{@const v = verdict(y.pence, y.usualPence)}
 						<p class="muted">
-							{verdict(y.pence, y.usualPence)}<span class="small"
-								>{verdict(y.pence, y.usualPence) === 'about usual'
-									? ''
-									: ` (usually ${formatPence(y.usualPence)})`}</span
-							>
+							{v}{#if v !== 'about usual'}<span class="small">
+									(usually {formatPence(y.usualPence)})</span
+								>{/if}
 						</p>
 					{/if}
 				</div>
