@@ -1,6 +1,6 @@
 // Daily temperatures from Open-Meteo (free, no key), so gas use can allow for
 // the weather. Docs: https://open-meteo.com/en/docs
-import { eq, max, min, sql } from 'drizzle-orm';
+import { between, eq, max, min, sql } from 'drizzle-orm';
 import { location, monthHistory, weatherDay } from './db/schema.ts';
 import { addDays } from '../dates.ts';
 import type { DB } from './db/index.ts';
@@ -109,15 +109,12 @@ async function firstGasDay(db: DB) {
 	return month && `${month}-01`;
 }
 
-/** Heating degree days a month, for months with a temperature every day. */
-export async function degreeDays(db: DB) {
-	const month = sql<string>`substr(${weatherDay.day}, 1, 7)`;
-	return db
+/** Heating degree days each day from `from` to `to` (YYYY-MM-DD) that has a temperature. */
+export const dailyDegreeDays = (db: DB, from: string, to: string) =>
+	db
 		.select({
-			month,
-			degreeDays: sql<number>`sum(max(0, ${BASE_C} - ${weatherDay.meanC}))`,
-			days: sql<number>`count(*)`
+			day: weatherDay.day,
+			degreeDays: sql<number>`max(0, ${BASE_C} - ${weatherDay.meanC})`
 		})
 		.from(weatherDay)
-		.groupBy(month);
-}
+		.where(between(weatherDay.day, from, to));

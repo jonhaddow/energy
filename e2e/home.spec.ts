@@ -1,47 +1,35 @@
 import { expect, test } from '@playwright/test';
 import { open } from './helpers.ts';
 
-test('compares this year with last year', async ({ page }) => {
+// Readings to Thu 15 Jan 2026: 12 kWh of electricity a day (2.4 on 1 Jan, 15 on
+// 15 Jan) and 72 of gas. January 2025 is the sheet's: 300 kWh of electricity, 2,000 of gas.
+
+test('compares this month so far with a year before, in £', async ({ page }) => {
 	await open(page, '/');
-	await expect(page.getByText('Jan–Mar 2026')).toBeVisible();
-	await expect(page.getByText('640 kWh')).toBeVisible();
-	await expect(page.getByText('20% less than a year before')).toBeVisible();
-	// February in the chart's caption: x ≈ 39 of its 340 wide.
-	const chart = page.getByRole('img', { name: /Use each month/ });
-	const { width } = (await chart.boundingBox())!;
-	await chart.hover({ position: { x: (width * 39) / 340, y: 20 } });
-	await expect(page.locator('figcaption li')).toHaveText(['2026 200 kWh', '2025 250 kWh']);
+	const month = page.locator('.month');
+	await expect(month.getByRole('heading')).toHaveText('January so far');
+	// Electricity: 173.4 kWh × 24.86p + 15 × 53.35p = £51.11; gas: 1,080 × 6p + 15 × 30p = £69.30.
+	await expect(month.locator('.big')).toHaveText('£120');
+	// A year before: 15/31 of January's history, at the same prices: £106.65.
+	await expect(month).toContainText('↑ £14 more than 1–15 Jan last year');
+	// January 2026 was 20% colder.
+	await expect(month).toContainText('20% colder; allowing for that, 7% less gas');
 });
 
-test('switches to gas', async ({ page }) => {
+test('shows yesterday, and taps through to its hours', async ({ page }) => {
 	await open(page, '/');
-	await page.getByRole('link', { name: 'Gas' }).click();
-	await expect(page.getByText('10% more than a year before')).toBeVisible();
-	// But January was 20% colder.
-	await expect(page.getByText('Allowing for the weather: 8% less gas')).toBeVisible();
-	await expect(page.getByText('(it was 20% colder)')).toBeVisible();
+	const day = page.locator('.yesterday');
+	await expect(day).toContainText('Thu 15 Jan');
+	await expect(day).toContainText('Electricity £4.26 · Gas £4.62');
+	await expect(day).toContainText('about usual');
+	await day.click();
+	await expect(page.getByRole('heading', { name: 'Thu 15 Jan' })).toBeVisible();
 });
 
-test('shows pounds, and both fuels together', async ({ page }) => {
+test('shows a month from the chart', async ({ page }) => {
 	await open(page, '/');
-	await page.getByRole('link', { name: '£' }).click();
-	await expect(page.getByText('£207')).toBeVisible();
-	await expect(page.getByText('16% less than a year before')).toBeVisible();
-	// The same prices both years, so all of it is from using less.
-	await expect(page.getByRole('listitem').filter({ hasText: 'Using less' })).toHaveText(
-		'Using less −£40'
-	);
-	await expect(page.getByText('Higher prices')).toBeHidden();
-	await expect(page.getByText('Standing charges: £187 a year')).toBeVisible();
-	// The chart marks April's new prices; the caption names them for that month.
-	const chart = page.getByRole('img', { name: /Use each month/ });
-	const { width, height } = (await chart.boundingBox())!;
-	// April is at x ≈ 97 of the chart's 340 wide (YearChart's W and PAD). Halfway
-	// down, as the caption's extra line moves the chart down.
-	await chart.hover({ position: { x: (width * 100) / 340, y: height / 2 } });
-	await expect(page.getByText('New prices from 1 Apr 2026')).toBeVisible();
-	await page.getByRole('link', { name: 'Both' }).click();
-	await expect(page).toHaveURL(/fuel=both&unit=gbp/);
-	await expect(page.getByText('£218').first()).toBeVisible();
-	await expect(page.getByText('1% less than a year before')).toBeVisible();
+	const caption = page.locator('.caption');
+	await expect(caption).toContainText('January 2026 £218');
+	await page.getByRole('button', { name: 'March 2025' }).click();
+	await expect(caption).toContainText('March 2025');
 });

@@ -27,6 +27,8 @@
 		--card: light-dark(#fffdf8, #1c1a18);
 		--ink: light-dark(#1c1917, #f3efe7);
 		--accent: light-dark(#e07a10, #f5a03c);
+		/* Gas, beside electricity's --accent in charts. */
+		--gas: light-dark(#3d6f94, #7fb0d6);
 		/* Text on an --accent background (primary buttons, chosen tabs). */
 		--on-accent: light-dark(#ffffff, #1a1206);
 		--muted: light-dark(#6f6a62, #a39d93);
@@ -86,53 +88,16 @@
 		gap: 20px;
 	}
 
-	/* Room under the last card for the tab bar. */
-	body:has(.tabs) .page {
-		padding-bottom: calc(96px + env(safe-area-inset-bottom));
-	}
-
-	/* The pages, along the bottom where a thumb reaches. */
-	.tabs {
-		position: fixed;
-		inset: auto 0 0;
-		z-index: 10;
-		display: flex;
-		justify-content: center;
-		padding: 0 8px env(safe-area-inset-bottom);
-		background: var(--card);
-		border-top: 1px solid var(--line);
-	}
-
-	.tabs a {
-		flex: 0 1 120px;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 3px;
-		padding: 9px 0 7px;
-		color: var(--muted);
+	/* A page's way back, before its name. */
+	.back {
+		display: inline-block;
+		padding: 0 10px 0 2px;
+		margin: -8px 0;
+		font-size: 26px;
+		line-height: 1;
+		letter-spacing: 0;
 		text-decoration: none;
-		font-size: 11px;
-		font-weight: 600;
-		transition: opacity 0.1s;
-	}
-
-	.tabs a:active {
-		opacity: 0.6;
-	}
-
-	.tabs a[aria-current='page'] {
-		color: var(--accent);
-	}
-
-	.tabs svg {
-		width: 24px;
-		height: 24px;
-		fill: none;
-		stroke: currentColor;
-		stroke-width: 2;
-		stroke-linecap: round;
-		stroke-linejoin: round;
+		vertical-align: -3px;
 	}
 
 	/* Laptops: more width, for pages laid out in columns. */

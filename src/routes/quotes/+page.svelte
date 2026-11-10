@@ -3,15 +3,14 @@
 	import type { PageProps } from './$types';
 	import { enhance } from '$app/forms';
 	import { formatDate, formatMonths } from '#lib/dates.ts';
-	import { formatAmount, formatKwh } from '#lib/format.ts';
+	import { formatKwh, formatPounds } from '#lib/format.ts';
 
 	let { data, form }: PageProps = $props();
 
-	const pounds = (pence: number) => formatAmount(pence / 100, 'gbp');
 	/** "£120 less" or "£40 more" a year than now. */
 	const vsNow = (total: number) => {
 		const d = Math.round((total - data.now!.total) / 100);
-		return d === 0 ? 'the same' : `${formatAmount(Math.abs(d), 'gbp')} ${d < 0 ? 'less' : 'more'}`;
+		return d === 0 ? 'the same' : `${formatPounds(Math.abs(d) * 100)} ${d < 0 ? 'less' : 'more'}`;
 	};
 	const fuels = [
 		{ key: 'electricity', label: 'Electricity' },
@@ -25,7 +24,7 @@
 
 <main class="page wide">
 	<header>
-		<h1>Quotes</h1>
+		<h1><a class="back" href="/settings" aria-label="Settings">‹</a>Quotes</h1>
 	</header>
 
 	{#if !data.use}
@@ -45,10 +44,10 @@
 						<div>
 							<strong>What we pay now</strong>
 							<span class="muted small"
-								>{pounds(data.now.use)} use · {pounds(data.now.standing)} standing</span
+								>{formatPounds(data.now.use)} use · {formatPounds(data.now.standing)} standing</span
 							>
 						</div>
-						<strong class="total">{pounds(data.now.total)}</strong>
+						<strong class="total">{formatPounds(data.now.total)}</strong>
 					</li>
 				{/if}
 				{#each data.quotes as q (q.id)}
@@ -58,8 +57,8 @@
 							<strong>{q.name}</strong>
 							<span class="muted small">
 								{[
-									`${pounds(q.cost.use)} use`,
-									`${pounds(q.cost.standing)} standing`,
+									`${formatPounds(q.cost.use)} use`,
+									`${formatPounds(q.cost.standing)} standing`,
 									q.fixedUntil && `fixed to ${formatDate(q.fixedUntil)}`
 								]
 									.filter(Boolean)
@@ -70,7 +69,7 @@
 							{/if}
 						</div>
 						<div class="right">
-							<strong class="total">{pounds(q.cost.total)}</strong>
+							<strong class="total">{formatPounds(q.cost.total)}</strong>
 							<form method="POST" action="?/remove" use:enhance>
 								<input type="hidden" name="id" value={q.id} />
 								<button class="remove" aria-label="Remove {q.name}">Remove</button>

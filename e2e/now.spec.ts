@@ -3,7 +3,7 @@ import { open } from './helpers.ts';
 
 test('shows the newest day hour by hour, against a typical day', async ({ page }) => {
 	await open(page, '/');
-	await page.getByRole('link', { name: 'Now' }).click();
+	await page.locator('.yesterday').click();
 	await expect(page.getByRole('heading', { name: 'Thu 15 Jan' })).toBeVisible();
 	await expect(page.getByText('15.0 kWh', { exact: true })).toBeVisible();
 	// The typical day includes a quiet New Year's Day.
@@ -27,7 +27,7 @@ test('compares this week with a typical one, and marks unusual days', async ({ p
 	await expect(page.getByText('2.4 kWh', { exact: true })).toBeVisible();
 });
 
-test('has nothing for gas yet', async ({ page }) => {
+test('shows gas', async ({ page }) => {
 	await open(page, '/now?fuel=gas');
-	await expect(page.getByText('No readings yet')).toBeVisible();
+	await expect(page.getByText('72.0 kWh', { exact: true })).toBeVisible();
 });

@@ -3,7 +3,8 @@ import { open } from './helpers.ts';
 
 test('prices a quote on our year of use, against what we pay now', async ({ page }) => {
 	await open(page, '/');
-	await page.getByRole('link', { name: 'Quotes' }).click();
+	await page.getByRole('link', { name: 'Settings' }).click();
+	await page.getByRole('link', { name: /Quotes/ }).click();
 	await expect(
 		page.getByText('Feb 2025 – Jan 2026: 2,090 kWh of electricity and 7,700 kWh of gas')
 	).toBeVisible();

@@ -1,4 +1,4 @@
-import { dayTotals, halfHours, readingRange } from '#lib/server/day.ts';
+import { dayTotals, halfHours, lastWholeDay, readingRange } from '#lib/server/day.ts';
 import { allTariffs } from '#lib/server/tariffs.ts';
 import { addDays, dayOf, ukHour } from '#lib/dates.ts';
 import { dayUse } from '#lib/day.ts';
@@ -18,18 +18,8 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 	const range = ranges.get(fuel);
 	if (!range) return { fuel, use: null };
 	const first = dayOf(range.first);
-	const last = dayOf(range.last);
-	// Bright's readings come a day or so late, so the newest day is often only
-	// partly in: open on the one before unless it reaches its last hour. Gas is
-	// often really 0 late in the evening, so for gas electricity past the end of
-	// the day also counts (Bright usually gets both fuels together).
-	const elec = ranges.get('electricity')?.last;
-	const lastIsWhole =
-		ukHour(range.last) === 23 ||
-		(fuel === 'gas' &&
-			elec !== undefined &&
-			(dayOf(elec) > last || (dayOf(elec) === last && ukHour(elec) === 23)));
-	const lastWhole = lastIsWhole ? last : addDays(last, -1);
+	// Open on the newest whole day.
+	const { last, lastWhole, whole: lastIsWhole } = lastWholeDay(ranges, fuel)!;
 	const param = url.searchParams.get('day') ?? '';
 	const day =
 		/^\d{4}-\d{2}-\d{2}$/.test(param) && param >= first && param <= last ? param : lastWhole;

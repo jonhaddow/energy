@@ -1,6 +1,27 @@
 import { and, between, eq, gt, max, min, sum } from 'drizzle-orm';
 import { reading, type Fuel } from './db/schema.ts';
 import type { DB } from './db/index.ts';
+import { addDays, dayOf, ukHour } from '../dates.ts';
+
+/**
+ * A fuel's newest day with readings, and its newest whole day (YYYY-MM-DD).
+ * Bright's readings come a day or so late, so the newest day is often only
+ * partly in: it's whole once it reaches its last hour. Gas is often really 0
+ * late in the evening, so for gas electricity past the end of the day also
+ * counts (Bright usually gets both fuels together).
+ */
+export function lastWholeDay(ranges: Map<Fuel, { first: number; last: number }>, fuel: Fuel) {
+	const range = ranges.get(fuel);
+	if (!range) return null;
+	const last = dayOf(range.last);
+	const elec = ranges.get('electricity')?.last;
+	const whole =
+		ukHour(range.last) === 23 ||
+		(fuel === 'gas' &&
+			elec !== undefined &&
+			(dayOf(elec) > last || (dayOf(elec) === last && ukHour(elec) === 23)));
+	return { last, lastWhole: whole ? last : addDays(last, -1), whole };
+}
 
 /** Each fuel's first and last half hours with a real reading (unix seconds). */
 export async function readingRange(db: DB) {
