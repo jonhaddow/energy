@@ -2,41 +2,18 @@
 
 Household gas and electricity use, compared year on year, as a phone web app.
 
-- Half-hourly smart meter readings are pulled hourly from Bright (Hildebrand Glow's Glowmarkt API).
-- Months from before the meter data can be imported from a CSV.
+It pulls half-hourly smart meter readings so you can see whether you're using more or less energy than the same time last year. Older monthly totals can be imported from a CSV.
 
-Stack: SvelteKit (Svelte 5) on Cloudflare Workers, Drizzle ORM on Cloudflare D1, Vitest.
+## Tech stack
 
-## Running locally
+- [SvelteKit](https://svelte.dev) (Svelte 5) and TypeScript, as an installable PWA
+- [Cloudflare Workers](https://workers.cloudflare.com), with [D1](https://developers.cloudflare.com/d1/) (SQLite) through [Drizzle ORM](https://orm.drizzle.team)
+- Google sign-in ([Arctic](https://arcticjs.dev)) for an allowlist of users
+- [Tailwind CSS](https://tailwindcss.com) and [shadcn-svelte](https://shadcn-svelte.com)
+- Smart meter data from the [Glowmarkt](https://glowmarkt.com) (Bright) API, synced hourly by a cron trigger
+- [Vitest](https://vitest.dev) and [Playwright](https://playwright.dev) for tests
+- Deployed from `main` by Cloudflare Workers Builds
 
-```sh
-npm install
-npm run db:migrate:local
-npx wrangler d1 execute energy --local --command "INSERT INTO user (email, name) VALUES ('you@example.com', 'You')"
-cp .dev.vars.example .dev.vars
-npm run dev    # the login page has dev-only "Sign in as" buttons
-```
+## Development
 
-Tests: `npm test` (unit), `npm run check` (types), `npm run lint`.
-
-## Importing history
-
-Save monthly totals as `private/history.csv` (columns `fuel,month,kwh,cost_pounds`; `private/` is gitignored), run `npm run db:history`, then `npx wrangler d1 execute energy --local --file=private/history.sql` (`--remote` for live).
-
-## Sign-in
-
-Google OAuth. Only emails in the `user` table can sign in.
-
-## Configuration
-
-Vars in `wrangler.jsonc`: `APP_ORIGIN`, `GOOGLE_CLIENT_ID`.
-
-Secrets (`wrangler secret put`; locally in `.dev.vars`):
-
-- `GOOGLE_CLIENT_SECRET`
-- `GLOW_USERNAME` and `GLOW_PASSWORD`: the Bright app login.
-- `SYNC_SECRET`: any long random string; authenticates the hourly cron.
-
-## Deploying
-
-Pushing to `main` deploys through Cloudflare Workers Builds, whose deploy command `npm run deploy:ci` applies D1 migrations first. Back up the data with `npx wrangler d1 export energy --remote --output energy.sql` (loads into any SQLite with `sqlite3 energy.db < energy.sql`).
+See [`docs/development.md`](docs/development.md) for running it locally, configuration and deploying.
