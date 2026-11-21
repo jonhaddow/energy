@@ -75,9 +75,9 @@
 			</g>
 		{/if}
 		{#if b.label}
-			<text x={x + step / 2} y={H + 16} text-anchor="middle" class:on={selected === b.key}
-				>{b.label}</text
-			>
+			<text x={x + step / 2} y={H + 16} text-anchor="middle" class:on={selected === b.key}>
+				{b.label}
+			</text>
 		{/if}
 	{/each}
 </svg>
