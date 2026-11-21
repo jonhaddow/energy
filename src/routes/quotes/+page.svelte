@@ -43,9 +43,9 @@
 					<li class="now">
 						<div>
 							<strong>What we pay now</strong>
-							<span class="muted small"
-								>{formatPounds(data.now.use)} use · {formatPounds(data.now.standing)} standing</span
-							>
+							<span class="muted small">
+								{formatPounds(data.now.use)} use · {formatPounds(data.now.standing)} standing
+							</span>
 						</div>
 						<strong class="total">{formatPounds(data.now.total)}</strong>
 					</li>

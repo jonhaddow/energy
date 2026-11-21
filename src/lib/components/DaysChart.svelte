@@ -47,9 +47,9 @@
 		</a>
 		<!-- A label every week back from the newest day. -->
 		{#if (days.length - 1 - i) % 7 === 0}
-			<text x={i * step + step / 2} y={H + 16} text-anchor="middle"
-				>{formatDay(d.day).slice(4)}</text
-			>
+			<text x={i * step + step / 2} y={H + 16} text-anchor="middle">
+				{formatDay(d.day).slice(4)}
+			</text>
 		{/if}
 	{/each}
 </svg>

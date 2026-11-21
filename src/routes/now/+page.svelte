@@ -36,9 +36,9 @@
 		<h1><a class="back" href="/" aria-label="Home">‹</a>Day by day</h1>
 		<nav class="segments" aria-label="Fuel">
 			{#each fuels as f (f.value)}
-				<a href={href(f.value)} aria-current={data.fuel === f.value ? 'page' : undefined}
-					>{f.label}</a
-				>
+				<a href={href(f.value)} aria-current={data.fuel === f.value ? 'page' : undefined}>
+					{f.label}
+				</a>
 			{/each}
 		</nav>
 	</header>
@@ -92,19 +92,19 @@
 			<h2>This week</h2>
 			<p class="muted">{w.from === w.to ? weekday(w.to) : `${weekday(w.from)}–${weekday(w.to)}`}</p>
 			<p class="mid">
-				{formatSmallKwh(w.kwh)}{#if w.pence !== null}<span class="muted"
-						>{` · ${formatPence(w.pence)}`}</span
-					>{/if}
+				{formatSmallKwh(w.kwh)}{#if w.pence !== null}<span class="muted">
+						{` · ${formatPence(w.pence)}`}
+					</span>{/if}
 			</p>
 			{#if w.typical}
 				{@const c = change(w.kwh, w.typical.kwh)}
 				<p class={c.less ? 'good' : 'over'}>
 					{c.text} than a typical week so far
-					<span class="muted"
-						>({formatSmallKwh(w.typical.kwh)}{#if w.typical.pence !== null}, {formatPence(
+					<span class="muted">
+						({formatSmallKwh(w.typical.kwh)}{#if w.typical.pence !== null}, {formatPence(
 								w.typical.pence
-							)}{/if})</span
-					>
+							)}{/if})
+					</span>
 				</p>
 				<p class="muted small">Typical: the same days in the {w.weeks} weeks before.</p>
 			{/if}
